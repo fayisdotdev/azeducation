@@ -39,6 +39,7 @@ dependencies:
   uuid: ^4.5.1
   file_picker: ^10.3.3
   image_picker: ^1.2.0
+  flutter_launcher_icons:
 
 dev_dependencies:
   flutter_test:
@@ -92,3 +93,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  adaptive_icon_background: "#FFFFFFFF" # Using your theme's primary color
+  adaptive_icon_foreground: "assets/images/app_icon.png"
