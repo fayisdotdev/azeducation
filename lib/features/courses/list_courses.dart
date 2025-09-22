@@ -52,6 +52,10 @@ class CourseCard extends StatelessWidget {
   final CourseModel course;
   const CourseCard({super.key, required this.course});
 
+  // Default image URL
+  static const defaultImageUrl =
+      "https://ubpiwzohjbeyagmnkvfx.supabase.co/storage/v1/object/public/test-courses/default_course.png";
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -63,9 +67,14 @@ class CourseCard extends StatelessWidget {
           SizedBox(
             height: 120,
             width: double.infinity,
-            child: course.imageUrl != null
-                ? Image.network(course.imageUrl!, fit: BoxFit.cover)
-                : const Icon(Icons.school, size: 80, color: Colors.grey),
+            child: Image.network(
+              course.imageUrl ?? defaultImageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                // fallback if the URL fails
+                return Image.network(defaultImageUrl, fit: BoxFit.cover);
+              },
+            ),
           ),
           const SizedBox(height: 10),
           Text(course.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -78,3 +87,4 @@ class CourseCard extends StatelessWidget {
     );
   }
 }
+
