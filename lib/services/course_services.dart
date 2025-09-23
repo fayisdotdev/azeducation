@@ -12,7 +12,7 @@ class CourseService {
 
   Future<List<CourseModel>> fetchCourses() async {
     final response = await supabase.from('courses').select();
-    debugPrint("Raw courses response: $response"); // debug
+    // debugPrint("Raw courses response: $response"); // debug
     return (response as List)
         .map((c) => CourseModel.fromMap(c as Map<String, dynamic>))
         .toList();

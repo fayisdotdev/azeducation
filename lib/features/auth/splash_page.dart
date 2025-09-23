@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'package:azeducation/features/home/home_page.dart';
+import 'package:azeducation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/auth_provider.dart';
-import 'login_page.dart';
-import '../home/home_page.dart';
+// import 'login_page.dart';
+import 'package:azeducation/features/courses/list_courses.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -35,7 +36,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         // ✅ User is not logged in
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
+          MaterialPageRoute(builder: (_) => const CourseListPage()),
         );
       }
     }
