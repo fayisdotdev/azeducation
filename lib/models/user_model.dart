@@ -1,7 +1,3 @@
-// lib/models/user_model.dart
-
-import 'package:flutter/foundation.dart';
-
 /// Base user model
 class UserModel {
   final String id;
@@ -62,21 +58,15 @@ class Teacher extends UserModel {
   final List<String> subjects;
 
   Teacher({
-    required String id,
-    required String name,
-    required String email,
-    required String password,
-    required String mobile,
+    required super.id,
+    required super.name,
+    required super.email,
+    required super.password,
+    required super.mobile,
     this.subjects = const [],
-    DateTime? createdAt,
+    super.createdAt,
   }) : super(
-          id: id,
-          name: name,
-          email: email,
-          password: password,
-          mobile: mobile,
           isTeacher: true,
-          createdAt: createdAt,
         );
 
   factory Teacher.fromMap(Map<String, dynamic> map) {
@@ -109,21 +99,15 @@ class Student extends UserModel {
   final List<String> courses;
 
   Student({
-    required String id,
-    required String name,
-    required String email,
-    required String password,
-    required String mobile,
+    required super.id,
+    required super.name,
+    required super.email,
+    required super.password,
+    required super.mobile,
     this.courses = const [],
-    DateTime? createdAt,
+    super.createdAt,
   }) : super(
-          id: id,
-          name: name,
-          email: email,
-          password: password,
-          mobile: mobile,
           isStudent: true,
-          createdAt: createdAt,
         );
 
   factory Student.fromMap(Map<String, dynamic> map) {
@@ -154,20 +138,14 @@ class Student extends UserModel {
 /// Admin model extending UserModel
 class Admin extends UserModel {
   Admin({
-    required String id,
-    required String name,
-    required String email,
-    required String password,
-    required String mobile,
-    DateTime? createdAt,
+    required super.id,
+    required super.name,
+    required super.email,
+    required super.password,
+    required super.mobile,
+    super.createdAt,
   }) : super(
-          id: id,
-          name: name,
-          email: email,
-          password: password,
-          mobile: mobile,
           isAdmin: true,
-          createdAt: createdAt,
         );
 
   factory Admin.fromMap(Map<String, dynamic> map) {
