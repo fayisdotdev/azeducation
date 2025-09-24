@@ -6,9 +6,10 @@ import 'package:azeducation/providers/auth_provider.dart';
 final userServiceProvider = Provider<UserService>((ref) => UserService());
 
 final currentUserProfileProvider = FutureProvider<UserModel?>((ref) async {
-  final authUser = ref.read(currentUserProvider);
+  final authUser = ref.watch(currentUserProvider).value;
   if (authUser == null) return null;
 
   final userService = ref.read(userServiceProvider);
   return await userService.getUserById(authUser.id);
 });
+

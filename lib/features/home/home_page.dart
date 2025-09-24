@@ -78,7 +78,7 @@ class HomePage extends ConsumerWidget {
                     child: const Text("Add Course"),
                   ),
                 const SizedBox(height: 12),
-                if (user.isStudent || user.isTeacher)
+                if (user.isStudent || user.isTeacher || user.isAdmin)
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -103,6 +103,7 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Student Signup"),
                   ),
+                const SizedBox(height: 12),
                 if (user.isAdmin)
                   ElevatedButton(
                     onPressed: () {
@@ -115,6 +116,7 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Add Teacher"),
                   ),
+                const SizedBox(height: 12),
                 if (user.isAdmin)
                   ElevatedButton(
                     onPressed: () {

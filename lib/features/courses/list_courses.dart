@@ -2,8 +2,6 @@ import 'package:azeducation/providers/course_provider.dart';
 import 'package:azeducation/widgets/course_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// Import your login page
 import 'package:azeducation/features/auth/login_page.dart';
 
 class CourseListPage extends ConsumerStatefulWidget {
@@ -17,7 +15,6 @@ class _CourseListPageState extends ConsumerState<CourseListPage> {
   @override
   void initState() {
     super.initState();
-    // Invalidate the provider to force fetch fresh data whenever page is opened
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.invalidate(courseListProvider);
     });
@@ -45,23 +42,27 @@ class _CourseListPageState extends ConsumerState<CourseListPage> {
       ),
       body: coursesAsync.when(
         data: (courses) {
-          debugPrint("Courses fetched: ${courses.length}");
           if (courses.isEmpty) {
             return const Center(child: Text("No courses added yet."));
           }
 
+          // Responsive grid: change number of columns based on screen width
+          final screenWidth = MediaQuery.of(context).size.width;
+          int crossAxisCount = 2;
+          if (screenWidth > 800) crossAxisCount = 3;
+          if (screenWidth > 1200) crossAxisCount = 4;
+
           return GridView.builder(
             padding: const EdgeInsets.all(12),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // 2 cards per row
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1, // adjust as needed
+              childAspectRatio: 0.88, // slightly taller to fit text
             ),
             itemCount: courses.length,
             itemBuilder: (context, index) {
-              final course = courses[index];
-              return CourseCard(course: course);
+              return CourseCard(course: courses[index]);
             },
           );
         },
