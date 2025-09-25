@@ -1,6 +1,8 @@
 class CourseModel {
   final String id;
   final String name;
+  final String categoryId;
+  final String? subcategoryId;
   final String? duration;
   final double? fees;
   final String? note1;
@@ -12,6 +14,8 @@ class CourseModel {
   CourseModel({
     required this.id,
     required this.name,
+    required this.categoryId,
+    this.subcategoryId,
     this.duration,
     this.fees,
     this.note1,
@@ -25,6 +29,8 @@ class CourseModel {
     return {
       'id': id,
       'name': name,
+      'category_id': categoryId,
+      'subcategory_id': subcategoryId,
       'duration': duration,
       'fees': fees,
       'note1': note1,
@@ -37,8 +43,10 @@ class CourseModel {
 
   factory CourseModel.fromMap(Map<String, dynamic> map) {
     return CourseModel(
-      id: map['id'] ?? '',
-      name: map['name'] ?? '',
+      id: map['id'],
+      name: map['name'],
+      categoryId: map['category_id'],
+      subcategoryId: map['subcategory_id'],
       duration: map['duration'],
       fees: map['fees'] != null ? double.tryParse(map['fees'].toString()) : null,
       note1: map['note1'],
@@ -46,6 +54,39 @@ class CourseModel {
       note3: map['note3'],
       curriculum: map['curriculum'],
       imageUrl: map['image_url'],
+    );
+  }
+}
+
+
+
+class Category {
+  final String id;
+  final String category_name;
+
+  Category({required this.id, required this.category_name});
+
+  factory Category.fromMap(Map<String, dynamic> map) {
+    return Category(
+      id: map['id'],
+      category_name: map['category_name'],
+    );
+  }
+}
+
+
+class SubCategory {
+  final String id;
+  final String subcategory_name;
+  final String categoryId;
+
+  SubCategory({required this.id, required this.subcategory_name, required this.categoryId});
+
+  factory SubCategory.fromMap(Map<String, dynamic> map) {
+    return SubCategory(
+      id: map['id'],
+      subcategory_name: map['subcategory_name'],
+      categoryId: map['category_id'],
     );
   }
 }

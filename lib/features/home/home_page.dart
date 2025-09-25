@@ -1,4 +1,6 @@
 import 'package:azeducation/features/auth/admin/add_admin.dart';
+import 'package:azeducation/features/auth/admin/add_category.dart';
+import 'package:azeducation/features/auth/admin/add_subcategory.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
@@ -126,6 +128,32 @@ class HomePage extends ConsumerWidget {
                       );
                     },
                     child: const Text("Add Admin"),
+                  ),
+                // const SizedBox(height: 12),
+                // if (user.isAdmin)
+                //   ElevatedButton(
+                //     onPressed: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (_) => const AddCategoryPage(),
+                //         ),
+                //       );
+                //     },
+                //     child: const Text("Add category"),
+                //   ),
+                const SizedBox(height: 12),
+                if (user.isAdmin)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AddSubCategoryPage(),
+                        ),
+                      );
+                    },
+                    child: const Text("Add sub category"),
                   ),
               ],
             );

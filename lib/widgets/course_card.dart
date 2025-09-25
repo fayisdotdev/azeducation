@@ -12,7 +12,6 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate card width based on screen size
     final cardWidth = (MediaQuery.of(context).size.width - 12 * 3) / 2;
 
     return GestureDetector(
@@ -24,19 +23,16 @@ class CourseCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top image (responsive height)
             SizedBox(
-              height: cardWidth * 0.6, // 60% of card width
+              height: cardWidth * 0.6,
               width: double.infinity,
               child: Image.network(
                 course.imageUrl ?? defaultImageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
+                errorBuilder: (context, _, __) =>
                     Image.network(defaultImageUrl, fit: BoxFit.cover),
               ),
             ),
-
-            // Bottom container for text and badges
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -44,7 +40,6 @@ class CourseCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Course name
                   Text(
                     course.name,
                     style: const TextStyle(
@@ -53,25 +48,6 @@ class CourseCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-
-                  // // Duration on separate line
-                  // if (course.duration != null)
-                  //   Container(
-                  //     margin: const EdgeInsets.only(bottom: 4),
-                  //     padding: const EdgeInsets.symmetric(
-                  //         horizontal: 8, vertical: 4),
-                  //     decoration: BoxDecoration(
-                  //       color: Colors.blue.shade100,
-                  //       borderRadius: BorderRadius.circular(12),
-                  //     ),
-                  //     child: Text(
-                  //       "Duration: ${course.duration!}",
-                  //       style: const TextStyle(
-                  //           fontSize: 12, fontWeight: FontWeight.w500),
-                  //     ),
-                  //   ),
-
-                  // Fees on separate line
                   if (course.curriculum != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
