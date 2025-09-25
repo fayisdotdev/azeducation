@@ -34,8 +34,10 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
 
   Future<void> _pickImage() async {
     if (kIsWeb) {
-      final result = await FilePicker.platform
-          .pickFiles(type: FileType.image, withData: true);
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        withData: true,
+      );
       if (result != null && result.files.isNotEmpty) {
         setState(() {
           _pickedBytes = result.files.single.bytes;
@@ -60,7 +62,9 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
     String? imageUrl;
 
     // Upload image
-    imageUrl = await ref.read(courseServiceProvider).uploadCourseImage(
+    imageUrl = await ref
+        .read(courseServiceProvider)
+        .uploadCourseImage(
           file: _pickedImage,
           bytes: _pickedBytes,
           courseId: courseId,
@@ -98,13 +102,15 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
       ref.invalidate(courseListProvider); // Refresh list
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Course added successfully")));
+          const SnackBar(content: Text("Course added successfully")),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to add course: $e")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Failed to add course: $e")));
       }
     } finally {
       setState(() => _loading = false);
@@ -131,99 +137,127 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
                     color: Colors.grey[300],
                     child: kIsWeb
                         ? (_pickedBytes != null
-                            ? Image.memory(_pickedBytes!, fit: BoxFit.cover)
-                            : const Icon(Icons.add_a_photo, size: 50))
+                              ? Image.memory(_pickedBytes!, fit: BoxFit.cover)
+                              : const Icon(Icons.add_a_photo, size: 50))
                         : (_pickedImage != null
-                            ? Image.file(_pickedImage!, fit: BoxFit.cover)
-                            : const Icon(Icons.add_a_photo, size: 50)),
+                              ? Image.file(_pickedImage!, fit: BoxFit.cover)
+                              : const Icon(Icons.add_a_photo, size: 50)),
                   ),
                 ),
                 const SizedBox(height: 10),
 
                 /// CATEGORY DROPDOWN
-                Consumer(builder: (context, ref, _) {
-                  final asyncCats = ref.watch(categoryListProvider);
-                  return asyncCats.when(
-                    data: (cats) => DropdownButtonFormField<String>(
-                      value: _selectedCategoryId,
-                      decoration:
-                          const InputDecoration(labelText: "Category *"),
-                      items: cats
-                          .map((c) => DropdownMenuItem(
-                              value: c.id, child: Text(c.category_name)))
-                          .toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedCategoryId = val;
-                          _selectedSubCategoryId = null;
-                        });
-                      },
-                      validator: (val) =>
-                          val == null ? "Category is required" : null,
-                    ),
-                    loading: () => const CircularProgressIndicator(),
-                    error: (e, _) => Text("Error loading categories: $e"),
-                  );
-                }),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final asyncCats = ref.watch(categoryListProvider);
+                    return asyncCats.when(
+                      data: (cats) => DropdownButtonFormField<String>(
+                        value: _selectedCategoryId,
+                        decoration: const InputDecoration(
+                          labelText: "Category *",
+                        ),
+                        // CATEGORY DROPDOWN
+                        items: cats
+                            .map(
+                              (c) => DropdownMenuItem(
+                                value: c.categoryId,
+                                child: Text(c.categoryName),
+                              ),
+                            )
+                            .toList(),
+
+                        onChanged: (val) {
+                          setState(() {
+                            _selectedCategoryId = val;
+                            _selectedSubCategoryId = null;
+                          });
+                        },
+                        validator: (val) =>
+                            val == null ? "Category is required" : null,
+                      ),
+                      loading: () => const CircularProgressIndicator(),
+                      error: (e, _) => Text("Error loading categories: $e"),
+                    );
+                  },
+                ),
 
                 /// SUBCATEGORY DROPDOWN
                 if (_selectedCategoryId != null)
-                  Consumer(builder: (context, ref, _) {
-                    final asyncSubs =
-                        ref.watch(subCategoryListProvider(_selectedCategoryId!));
-                    return asyncSubs.when(
-                      data: (subs) => DropdownButtonFormField<String>(
-                        value: _selectedSubCategoryId,
-                        decoration: const InputDecoration(labelText: "Subcategory"),
-                        items: subs
-                            .map((s) => DropdownMenuItem(
-                                value: s.id, child: Text(s.subcategory_name)))
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedSubCategoryId = val),
-                      ),
-                      loading: () => const CircularProgressIndicator(),
-                      error: (e, _) => Text("Error loading subcategories: $e"),
-                    );
-                  }),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final asyncSubs = ref.watch(
+                        subCategoryListProvider(_selectedCategoryId!),
+                      );
+                      return asyncSubs.when(
+                        data: (subs) => DropdownButtonFormField<String>(
+                          value: _selectedSubCategoryId,
+                          decoration: const InputDecoration(
+                            labelText: "Subcategory",
+                          ),
+                          // SUBCATEGORY DROPDOWN
+                          items: subs
+                              .map(
+                                (s) => DropdownMenuItem(
+                                  value: s.subCategoryId, // correct
+                                  child: Text(s.subcategoryName),
+                                ),
+                              )
+                              .toList(),
+
+                          onChanged: (val) =>
+                              setState(() => _selectedSubCategoryId = val),
+                        ),
+                        loading: () => const CircularProgressIndicator(),
+                        error: (e, _) =>
+                            Text("Error loading subcategories: $e"),
+                      );
+                    },
+                  ),
 
                 const SizedBox(height: 10),
 
                 /// COURSE DETAILS
                 TextFormField(
                   controller: _nameController,
-                  decoration:
-                      const InputDecoration(labelText: "Course Name *"),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Name is required" : null,
+                  decoration: const InputDecoration(labelText: "Course Name *"),
+                  validator: (value) => value == null || value.isEmpty
+                      ? "Name is required"
+                      : null,
                 ),
                 TextFormField(
-                    controller: _durationController,
-                    decoration: const InputDecoration(labelText: "Duration")),
+                  controller: _durationController,
+                  decoration: const InputDecoration(labelText: "Duration"),
+                ),
                 TextFormField(
-                    controller: _feesController,
-                    decoration: const InputDecoration(labelText: "Fees"),
-                    keyboardType: TextInputType.number),
+                  controller: _feesController,
+                  decoration: const InputDecoration(labelText: "Fees"),
+                  keyboardType: TextInputType.number,
+                ),
                 TextFormField(
-                    controller: _note1Controller,
-                    decoration: const InputDecoration(labelText: "Note 1")),
+                  controller: _note1Controller,
+                  decoration: const InputDecoration(labelText: "Note 1"),
+                ),
                 TextFormField(
-                    controller: _note2Controller,
-                    decoration: const InputDecoration(labelText: "Note 2")),
+                  controller: _note2Controller,
+                  decoration: const InputDecoration(labelText: "Note 2"),
+                ),
                 TextFormField(
-                    controller: _note3Controller,
-                    decoration: const InputDecoration(labelText: "Note 3")),
+                  controller: _note3Controller,
+                  decoration: const InputDecoration(labelText: "Note 3"),
+                ),
                 TextFormField(
-                    controller: _curriculumController,
-                    decoration:
-                        const InputDecoration(labelText: "Curriculum")),
+                  controller: _curriculumController,
+                  decoration: const InputDecoration(labelText: "Curriculum"),
+                ),
 
                 const SizedBox(height: 20),
 
                 _loading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
-                        onPressed: _submit, child: const Text("Add Course")),
+                        onPressed: _submit,
+                        child: const Text("Add Course"),
+                      ),
               ],
             ),
           ),

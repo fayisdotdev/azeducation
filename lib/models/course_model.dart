@@ -2,7 +2,9 @@ class CourseModel {
   final String id;
   final String name;
   final String categoryId;
+  final String? categoryName;
   final String? subcategoryId;
+  final String? subcategoryName;
   final String? duration;
   final double? fees;
   final String? note1;
@@ -16,6 +18,8 @@ class CourseModel {
     required this.name,
     required this.categoryId,
     this.subcategoryId,
+    this.categoryName,
+    this.subcategoryName,
     this.duration,
     this.fees,
     this.note1,
@@ -46,9 +50,14 @@ class CourseModel {
       id: map['id'],
       name: map['name'],
       categoryId: map['category_id'],
+      categoryName: map['category_name'],
       subcategoryId: map['subcategory_id'],
+      subcategoryName: map['subcategory_name'],
+
       duration: map['duration'],
-      fees: map['fees'] != null ? double.tryParse(map['fees'].toString()) : null,
+      fees: map['fees'] != null
+          ? double.tryParse(map['fees'].toString())
+          : null,
       note1: map['note1'],
       note2: map['note2'],
       note3: map['note3'],
@@ -58,34 +67,35 @@ class CourseModel {
   }
 }
 
-
-
 class Category {
-  final String id;
-  final String category_name;
+  final String categoryId;
+  final String categoryName;
 
-  Category({required this.id, required this.category_name});
+  Category({required this.categoryId, required this.categoryName});
 
   factory Category.fromMap(Map<String, dynamic> map) {
     return Category(
-      id: map['id'],
-      category_name: map['category_name'],
+      categoryId: map['category_id'],      // matches DB
+      categoryName: map['category_name'],  // matches DB
     );
   }
 }
 
-
 class SubCategory {
-  final String id;
-  final String subcategory_name;
+  final String subCategoryId;
+  final String subcategoryName;
   final String categoryId;
 
-  SubCategory({required this.id, required this.subcategory_name, required this.categoryId});
+  SubCategory({
+    required this.subCategoryId,
+    required this.subcategoryName,
+    required this.categoryId,
+  });
 
   factory SubCategory.fromMap(Map<String, dynamic> map) {
     return SubCategory(
-      id: map['id'],
-      subcategory_name: map['subcategory_name'],
+      subCategoryId: map['subcategory_id'],      // matches DB
+      subcategoryName: map['subcategory_name'],  // matches DB
       categoryId: map['category_id'],
     );
   }

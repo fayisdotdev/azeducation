@@ -16,3 +16,7 @@ final subCategoryListProvider =
     FutureProvider.family<List<SubCategory>, String>((ref, categoryId) async {
   return ref.read(courseServiceProvider).fetchSubcategories(categoryId);
 });
+
+final allSubCategoriesProvider = FutureProvider<List<SubCategory>>((ref) async {
+  return ref.read(courseServiceProvider).fetchAllSubcategories();
+});

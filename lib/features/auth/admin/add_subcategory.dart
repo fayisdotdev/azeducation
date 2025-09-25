@@ -51,8 +51,10 @@ class _AddSubCategoryPageState extends ConsumerState<AddSubCategoryPage> {
                   value: _selectedCategoryId,
                   items: cats
                       .map(
-                        (c) =>
-                            DropdownMenuItem(value: c.id, child: Text(c.category_name)),
+                        (c) => DropdownMenuItem(
+                          value: c.categoryId,
+                          child: Text(c.categoryName),
+                        ),
                       )
                       .toList(),
                   onChanged: (val) => setState(() => _selectedCategoryId = val),

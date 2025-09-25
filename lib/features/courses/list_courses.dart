@@ -85,122 +85,152 @@ class _CourseListPageState extends ConsumerState<CourseListPage>
           ),
         ],
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // --- TAB 1: All Courses ---
-          coursesAsync.when(
-            data: (courses) => courses.isEmpty
-                ? const Center(child: Text("No courses added yet."))
-                : _buildGrid(courses),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(
-              child: Text("Error loading courses:\n$err",
-                  style: const TextStyle(color: Colors.red)),
-            ),
-          ),
+      body: Builder(
+        builder: (context) {
+          final subCategoriesAsync = ref.watch(allSubCategoriesProvider);
 
-          // --- TAB 2: By Category ---
-          categoriesAsync.when(
-            data: (categories) {
-              if (categories.isEmpty) {
-                return const Center(child: Text("No categories available."));
-              }
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              // --- TAB 1: All Courses ---
+              coursesAsync.when(
+                data: (courses) => courses.isEmpty
+                    ? const Center(child: Text("No courses added yet."))
+                    : _buildGrid(courses),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, _) => Center(
+                  child: Text(
+                    "Error loading courses:\n$err",
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
 
-              return coursesAsync.when(
-                data: (courses) {
-                  return ListView(
-                    children: categories.map<Widget>((cat) {
-                      final catCourses = courses
-                          .where((c) => c.categoryId == cat.id)
-                          .toList();
+              // --- TAB 2: By Category ---
+              categoriesAsync.when(
+                data: (categories) {
+                  if (categories.isEmpty) {
+                    return const Center(
+                      child: Text("No categories available."),
+                    );
+                  }
 
-                      if (catCourses.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
+                  return coursesAsync.when(
+                    data: (courses) {
+                      return ListView(
+                        children: categories.map<Widget>((cat) {
+                          final catCourses = courses
+                              .where((c) => c.categoryId == cat.categoryId)
+                              .toList();
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            child: Text(
-                              cat.category_name,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                          if (catCourses.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                child: Text(
+                                  cat.categoryName,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          _buildGrid(catCourses),
-                        ],
+                              _buildGrid(catCourses),
+                            ],
+                          );
+                        }).toList(),
                       );
-                    }).toList(),
+                    },
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (err, _) => Center(
+                      child: Text(
+                        "Error loading courses:\n$err",
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
                   );
                 },
-                loading: () =>
-                    const Center(child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (err, _) => Center(
-                  child: Text("Error loading courses:\n$err",
-                      style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    "Error loading categories:\n$err",
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(
-              child: Text("Error loading categories:\n$err",
-                  style: const TextStyle(color: Colors.red)),
-            ),
-          ),
+              ),
 
-          // --- TAB 3: By Subcategory ---
-          coursesAsync.when(
-            data: (courses) {
-              if (courses.isEmpty) {
-                return const Center(child: Text("No courses available."));
-              }
+              // --- TAB 3: By Subcategory ---
+              coursesAsync.when(
+                data: (courses) => subCategoriesAsync.when(
+                  data: (subCategories) {
+                    final subCategoryMap = {
+                      for (var s in subCategories)
+                        s.subCategoryId: s.subcategoryName,
+                    };
+                    // Group by subcategory
+                    final Map<String?, List<CourseModel>> grouped = {};
+                    for (var c in courses) {
+                      grouped.putIfAbsent(c.subcategoryId, () => []).add(c);
+                    }
 
-              // Group by subcategory
-              final Map<String?, List<CourseModel>> grouped = {};
-              for (var c in courses) {
-                grouped.putIfAbsent(c.subcategoryId, () => []).add(c);
-              }
+                    return ListView(
+                      children: grouped.entries.map<Widget>((entry) {
+                        final subId = entry.key;
+                        final subCourses = entry.value;
+                        final subName =
+                            subCategoryMap[subId] ?? "Uncategorized";
 
-              return ListView(
-                children: grouped.entries.map<Widget>((entry) {
-                  final subId = entry.key;
-                  final subCourses = entry.value;
-
-                  final subName = subId ?? "Uncategorized";
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Text(
-                          subName,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      _buildGrid(subCourses),
-                    ],
-                  );
-                }).toList(),
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Center(
-              child: Text("Error loading courses:\n$err",
-                  style: const TextStyle(color: Colors.red)),
-            ),
-          ),
-        ],
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              child: Text(
+                                subName,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            _buildGrid(subCourses),
+                          ],
+                        );
+                      }).toList(),
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (err, _) => Center(
+                    child: Text(
+                      "Error loading subcategories:\n$err",
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, _) => Center(
+                  child: Text(
+                    "Error loading courses:\n$err",
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -45,6 +45,12 @@ class CourseService {
     return (response as List).map((s) => SubCategory.fromMap(s)).toList();
   }
 
+  Future<List<SubCategory>> fetchAllSubcategories() async {
+  final response = await supabase.from('subcategories').select();
+  return (response as List).map((e) => SubCategory.fromMap(e)).toList();
+}
+
+
   /// Upload image (unchanged)
   Future<String?> uploadCourseImage({
     File? file,
