@@ -1,4 +1,4 @@
-import 'package:azeducation/features/auth/signup_page.dart';
+import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/home/home_page.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +58,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const SignupPage()),
+                  MaterialPageRoute(builder: (_) => const StudentSignupPage()),
                 );
               },
               child: const Text("Go to Signup"),

@@ -10,6 +10,7 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
 });
 
 // Current user provider
-final currentUserProvider = Provider<User?>((ref) {
-  return ref.read(authServiceProvider).currentUser;
+final currentUserProvider = StreamProvider<User?>((ref) {
+  final authService = ref.read(authServiceProvider);
+return authService.authStateChanges.map((state) => state.session?.user);
 });

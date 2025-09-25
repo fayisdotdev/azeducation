@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'package:azeducation/features/courses/list_courses.dart';
+import 'package:azeducation/features/home/home_page.dart';
+import 'package:azeducation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/auth_provider.dart';
-import 'login_page.dart';
-import '../home/home_page.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
@@ -13,32 +13,39 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
+  StreamSubscription? _authSub;
+
   @override
   void initState() {
     super.initState();
 
-    // Always show splash for at least 3 seconds
-    Timer(const Duration(seconds: 2), _navigateNext);
+    // Show splash for at least 2 seconds
+    Timer(const Duration(seconds: 2), () {
+      // Listen once to auth state after splash
+      _authSub = ref.read(authServiceProvider).authStateChanges.listen((state) {
+        final user = state.session?.user;
+
+        if (!mounted) return;
+
+        if (user != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const CourseListPage()),
+          );
+        }
+      });
+    });
   }
 
-  void _navigateNext() {
-    final currentUser = ref.read(currentUserProvider);
-
-    if (mounted) {
-      if (currentUser != null) {
-        // ✅ User is logged in
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
-      } else {
-        // ✅ User is not logged in
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
-      }
-    }
+  @override
+  void dispose() {
+    _authSub?.cancel();
+    super.dispose();
   }
 
   @override
