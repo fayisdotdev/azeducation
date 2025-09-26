@@ -12,7 +12,6 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = (MediaQuery.of(context).size.width - 12 * 3) / 2;
 
     return GestureDetector(
       onTap: onTap,
