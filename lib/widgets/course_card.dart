@@ -1,5 +1,5 @@
-import 'package:azeducation/models/course_model.dart';
 import 'package:flutter/material.dart';
+import '../models/course_model.dart';
 
 class CourseCard extends StatelessWidget {
   final CourseModel course;
@@ -23,9 +23,9 @@ class CourseCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: cardWidth * 0.6,
-              width: double.infinity,
+            // Image section
+            AspectRatio(
+              aspectRatio: 16 / 9, // keeps images proportional
               child: Image.network(
                 course.imageUrl ?? defaultImageUrl,
                 fit: BoxFit.cover,
@@ -33,13 +33,14 @@ class CourseCard extends StatelessWidget {
                     Image.network(defaultImageUrl, fit: BoxFit.cover),
               ),
             ),
-            Container(
-              width: double.infinity,
+
+            // Content section
+            Padding(
               padding: const EdgeInsets.all(12),
-              color: Colors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Course name
                   Text(
                     course.name,
                     style: const TextStyle(
@@ -47,7 +48,31 @@ class CourseCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
+
+                  // Category + Subcategory
+                  if (course.categoryName != null)
+                    Text(
+                      "${course.categoryName} • ${course.subcategoryName ?? ''}",
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                  const SizedBox(height: 6),
+
+                  // Duration + Fees
+                  if (course.duration != null || course.fees != null)
+                    Text(
+                      "${course.duration ?? ''}"
+                      "${course.duration != null && course.fees != null ? " • " : ""}"
+                      "${course.fees != null ? "₹${course.fees!.toStringAsFixed(0)}" : ""}",
+                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                    ),
+
+                  const SizedBox(height: 6),
+
+                  // Curriculum
                   if (course.curriculum != null)
                     Container(
                       padding: const EdgeInsets.symmetric(

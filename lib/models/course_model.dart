@@ -2,9 +2,9 @@ class CourseModel {
   final String id;
   final String name;
   final String categoryId;
-  final String? categoryName;
+  final String? categoryName; // ✅ new
   final String? subcategoryId;
-  final String? subcategoryName;
+  final String? subcategoryName; // ✅ new
   final String? duration;
   final double? fees;
   final String? note1;
@@ -17,8 +17,8 @@ class CourseModel {
     required this.id,
     required this.name,
     required this.categoryId,
-    this.subcategoryId,
     this.categoryName,
+    this.subcategoryId,
     this.subcategoryName,
     this.duration,
     this.fees,
@@ -27,7 +27,7 @@ class CourseModel {
     this.note3,
     this.curriculum,
     this.imageUrl,
-  });
+});
 
   Map<String, dynamic> toMap() {
     return {
@@ -49,11 +49,11 @@ class CourseModel {
     return CourseModel(
       id: map['id'],
       name: map['name'],
-      categoryId: map['category_id'],
-      categoryName: map['category_name'],
-      subcategoryId: map['subcategory_id'],
-      subcategoryName: map['subcategory_name'],
-
+      categoryId: map['category_id'] ?? map['categories']?['category_id'] ?? '',
+      categoryName: map['categories']?['category_name'] ?? '',
+      subcategoryId:
+          map['subcategory_id'] ?? map['subcategories']?['subcategory_id'],
+      subcategoryName: map['subcategories']?['subcategory_name'],
       duration: map['duration'],
       fees: map['fees'] != null
           ? double.tryParse(map['fees'].toString())
@@ -65,6 +65,7 @@ class CourseModel {
       imageUrl: map['image_url'],
     );
   }
+  
 }
 
 class Category {
@@ -75,8 +76,8 @@ class Category {
 
   factory Category.fromMap(Map<String, dynamic> map) {
     return Category(
-      categoryId: map['category_id'],      // matches DB
-      categoryName: map['category_name'],  // matches DB
+      categoryId: map['category_id'], // matches DB
+      categoryName: map['category_name'], // matches DB
     );
   }
 }
@@ -94,9 +95,10 @@ class SubCategory {
 
   factory SubCategory.fromMap(Map<String, dynamic> map) {
     return SubCategory(
-      subCategoryId: map['subcategory_id'],      // matches DB
-      subcategoryName: map['subcategory_name'],  // matches DB
+      subCategoryId: map['subcategory_id'], // matches DB
+      subcategoryName: map['subcategory_name'], // matches DB
       categoryId: map['category_id'],
     );
   }
 }
+

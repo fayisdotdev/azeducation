@@ -13,7 +13,9 @@ class CourseService {
   }
 
   Future<List<CourseModel>> fetchCourses() async {
-    final response = await supabase.from('courses').select();
+    final response = await supabase
+        .from('courses')
+        .select('*, categories(*), subcategories(*)');
     return (response as List)
         .map((c) => CourseModel.fromMap(c as Map<String, dynamic>))
         .toList();
@@ -46,10 +48,9 @@ class CourseService {
   }
 
   Future<List<SubCategory>> fetchAllSubcategories() async {
-  final response = await supabase.from('subcategories').select();
-  return (response as List).map((e) => SubCategory.fromMap(e)).toList();
-}
-
+    final response = await supabase.from('subcategories').select();
+    return (response as List).map((e) => SubCategory.fromMap(e)).toList();
+  }
 
   /// Upload image (unchanged)
   Future<String?> uploadCourseImage({
@@ -62,9 +63,13 @@ class CourseService {
       final filePath = '$courseId.jpg';
 
       if (isWeb && bytes != null) {
-        await supabase.storage.from('test-courses').uploadBinary(filePath, bytes);
+        await supabase.storage
+            .from('test-courses')
+            .uploadBinary(filePath, bytes);
       } else if (file != null) {
-        await supabase.storage.from('test-courses').upload(
+        await supabase.storage
+            .from('test-courses')
+            .upload(
               filePath,
               file,
               fileOptions: const FileOptions(upsert: true),
@@ -73,8 +78,9 @@ class CourseService {
         return null;
       }
 
-      final publicUrl =
-          supabase.storage.from('test-courses').getPublicUrl(filePath);
+      final publicUrl = supabase.storage
+          .from('test-courses')
+          .getPublicUrl(filePath);
       return publicUrl;
     } catch (e) {
       return null;
