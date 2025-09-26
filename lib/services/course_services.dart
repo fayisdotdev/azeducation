@@ -23,7 +23,7 @@ class CourseService {
 
   /// ========== Categories ==========
   Future<void> addCategory(String name) async {
-    await supabase.from('categories').insert({'name': name});
+    await supabase.from('categories').insert({'category_name': name});
   }
 
   Future<List<Category>> fetchCategories() async {
@@ -34,7 +34,7 @@ class CourseService {
   /// ========== Subcategories ==========
   Future<void> addSubCategory(String name, String categoryId) async {
     await supabase.from('subcategories').insert({
-      'name': name,
+      'subcategory_name': name,
       'category_id': categoryId,
     });
   }
