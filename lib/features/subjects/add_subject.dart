@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:azeducation/features/subjects/subject_model.dart';
 import 'package:azeducation/features/subjects/subject_provider.dart';

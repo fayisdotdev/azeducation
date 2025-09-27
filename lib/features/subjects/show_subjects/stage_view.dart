@@ -83,7 +83,7 @@ class SubjectsByStagePage extends ConsumerWidget {
                             padding: const EdgeInsets.all(8),
                             child: Text("Error: $e")),
                       );
-                    }).toList(),
+                    }),
                   ],
                 );
               }).toList(),
