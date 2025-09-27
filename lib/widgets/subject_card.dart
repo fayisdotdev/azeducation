@@ -1,12 +1,12 @@
-import 'package:azeducation/features/courses/detailed_course_page.dart';
 import 'package:flutter/material.dart';
-import '../models/course_model.dart';
+import 'package:azeducation/features/subjects/subject_model.dart';
+import 'package:azeducation/features/subjects/detailed_subject_page.dart';
 
-class CourseCard extends StatelessWidget {
-  final CourseModel course;
+class SubjectCard extends StatelessWidget {
+  final SubjectModel subject;
   final void Function()? onTap;
 
-  const CourseCard({super.key, required this.course, this.onTap});
+  const SubjectCard({super.key, required this.subject, this.onTap});
 
   static const defaultImageUrl =
       "https://ubpiwzohjbeyagmnkvfx.supabase.co/storage/v1/object/public/test-courses/default_course.png";
@@ -18,11 +18,10 @@ class CourseCard extends StatelessWidget {
         if (onTap != null) {
           onTap!();
         } else {
-          // ✅ Navigate to detailed page
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => DetailedCoursePage(course: course),
+              builder: (_) => DetailedSubjectPage(subject: subject),
             ),
           );
         }
@@ -36,12 +35,14 @@ class CourseCard extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(
-                course.imageUrl ?? defaultImageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, _, __) =>
-                    Image.network(defaultImageUrl, fit: BoxFit.cover),
-              ),
+              child: subject.imageUrl != null
+                  ? Image.network(
+                      subject.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, _, __) =>
+                          Image.network(defaultImageUrl, fit: BoxFit.cover),
+                    )
+                  : Image.network(defaultImageUrl, fit: BoxFit.cover),
             ),
             Padding(
               padding: const EdgeInsets.all(12),
@@ -49,31 +50,23 @@ class CourseCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course.name,
+                    subject.name,
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
-                  if (course.categoryName != null)
+                  if (subject.duration != null || subject.fees != null)
                     Text(
-                      "${course.categoryName} • ${course.subcategoryName ?? ''}",
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  const SizedBox(height: 6),
-                  if (course.duration != null || course.fees != null)
-                    Text(
-                      "${course.duration ?? ''}"
-                      "${course.duration != null && course.fees != null ? " • " : ""}"
-                      "${course.fees != null ? "₹${course.fees!.toStringAsFixed(0)}" : ""}",
+                      "${subject.duration ?? ''}"
+                      "${subject.duration != null && subject.fees != null ? " • " : ""}"
+                      "${subject.fees != null ? "₹${subject.fees!.toStringAsFixed(0)}" : ""}",
                       style:
                           const TextStyle(fontSize: 12, color: Colors.black87),
                     ),
                   const SizedBox(height: 6),
-                  if (course.curriculum != null)
+                  if (subject.curriculum != null)
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
@@ -82,7 +75,7 @@ class CourseCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        "${course.curriculum} Videos",
+                        "${subject.curriculum} Videos",
                         style: const TextStyle(
                             fontSize: 12, fontWeight: FontWeight.w500),
                       ),

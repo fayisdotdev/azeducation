@@ -52,12 +52,25 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Text(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+        Text(
           "AZ Education",
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          "v.5",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+          ],
         ),
       ),
     );

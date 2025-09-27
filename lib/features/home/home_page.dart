@@ -1,10 +1,10 @@
 import 'package:azeducation/features/auth/admin/add_admin.dart';
-import 'package:azeducation/features/auth/admin/add_subcategory.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
-import 'package:azeducation/features/courses/add_courses.dart';
+import 'package:azeducation/features/courses/course_session.dart';
 import 'package:azeducation/features/courses/list_courses.dart';
+import 'package:azeducation/features/subjects/subject_session.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:azeducation/providers/user_provider.dart';
 import 'package:flutter/material.dart';
@@ -72,11 +72,11 @@ class HomePage extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const AddCoursePage(),
+                          builder: (_) => const CourseSession(),
                         ),
                       );
                     },
-                    child: const Text("Add Course"),
+                    child: const Text("Course Session"),
                   ),
                 const SizedBox(height: 12),
                 if (user.isStudent || user.isTeacher || user.isAdmin)
@@ -134,12 +134,10 @@ class HomePage extends ConsumerWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const AddSubCategoryPage(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const SubjectSession()),
                       );
                     },
-                    child: const Text("Add sub category"),
+                    child: const Text("Subject Session"),
                   ),
               ],
             );
