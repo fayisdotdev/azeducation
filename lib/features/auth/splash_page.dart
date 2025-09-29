@@ -64,7 +64,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         ),
         SizedBox(height: 8),
         Text(
-          "v.5",
+          "v.6",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.normal,
