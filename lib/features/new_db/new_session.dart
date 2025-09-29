@@ -23,7 +23,7 @@ class NewSession extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AddStag2ePage()),
+                    MaterialPageRoute(builder: (_) => const AddStage2Page()),
                   );
                 },
                 child: const Text("Add Stage2"),
