@@ -1,43 +1,46 @@
-import 'package:azeducation/features/subjects/stage/add_stage.dart';
-import 'package:azeducation/features/subjects/subject_provider.dart';
+import 'package:azeducation/features/new_db/new_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AddClassPage extends ConsumerStatefulWidget {
-  const AddClassPage({super.key});
+class AddBoardPage extends ConsumerStatefulWidget {
+  const AddBoardPage({super.key});
 
   @override
-  ConsumerState<AddClassPage> createState() => _AddClassPageState();
+  ConsumerState<AddBoardPage> createState() => _AddBoardPageState();
 }
 
-class _AddClassPageState extends ConsumerState<AddClassPage> {
+class _AddBoardPageState extends ConsumerState<AddBoardPage> {
   final _controller = TextEditingController();
   String? _selectedStageId;
   bool _loading = false;
 
   Future<void> _submit() async {
     if (_controller.text.trim().isEmpty || _selectedStageId == null) {
-      debugPrint("⚠️ Submit blocked: className=${_controller.text}, stageId=$_selectedStageId");
+      debugPrint(
+          "⚠️ Submit blocked: boardName=${_controller.text}, stageId=$_selectedStageId");
       return;
     }
 
     setState(() => _loading = true);
     try {
-      debugPrint("✅ Adding class '${_controller.text.trim()}' to stageId=$_selectedStageId");
-      await ref
-          .read(subjectServiceProvider)
-          .addClass(_controller.text.trim(), _selectedStageId!);
+      debugPrint(
+          "✅ Adding board '${_controller.text.trim()}' to stageId=$_selectedStageId");
 
-      ref.invalidate(classListProvider(_selectedStageId!));
+      await ref
+          .read(educationServiceProvider)
+          .addBoard(_controller.text.trim(), _selectedStageId!);
+
+      // Refresh boards under this stage
+      ref.invalidate(boardListProvider(_selectedStageId!));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Class added")),
+          const SnackBar(content: Text("Board added successfully")),
         );
         Navigator.pop(context);
       }
     } catch (e, st) {
-      debugPrint("❌ Error while adding class: $e");
+      debugPrint("❌ Error while adding board: $e");
       debugPrintStack(stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -54,22 +57,19 @@ class _AddClassPageState extends ConsumerState<AddClassPage> {
     final stages = ref.watch(stageListProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Class")),
+      appBar: AppBar(title: const Text("Add Board")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Dropdown for stage
             stages.when(
               data: (stgs) {
-                debugPrint("📦 Loaded stages: ${stgs.map((s) => "${s.stageId}:${s.stageName}").toList()}");
-
                 return DropdownButtonFormField<String>(
                   value: _selectedStageId,
                   isExpanded: true,
                   decoration: const InputDecoration(labelText: "Stage"),
                   items: stgs
-                      // ignore: unnecessary_null_comparison
-                      .where((s) => s.stageId != null) // filter nulls if any
                       .map(
                         (s) => DropdownMenuItem<String>(
                           value: s.stageId,
@@ -83,38 +83,29 @@ class _AddClassPageState extends ConsumerState<AddClassPage> {
                   },
                 );
               },
-              loading: () {
-                debugPrint("⏳ Loading stages...");
-                return const CircularProgressIndicator();
-              },
-              error: (e, st) {
-                debugPrint("❌ Failed to load stages: $e");
-                debugPrintStack(stackTrace: st);
-                return Text("Error: $e");
-              },
+              loading: () => const CircularProgressIndicator(),
+              error: (e, st) => Text("Error: $e"),
             ),
+
+            const SizedBox(height: 16),
+
+            // Board name input
             TextField(
               controller: _controller,
-              decoration: const InputDecoration(labelText: "Class name"),
-              onChanged: (val) => debugPrint("⌨️ Class name typed: $val"),
+              decoration: const InputDecoration(labelText: "Board name"),
+              onChanged: (val) =>
+                  debugPrint("⌨️ Board name typed: $val"),
             ),
+
             const SizedBox(height: 16),
+
+            // Submit button
             _loading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: _submit,
                     child: const Text("Add"),
                   ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AddStagePage()),
-                );
-              },
-              child: const Text("Add stage"),
-            ),
           ],
         ),
       ),
