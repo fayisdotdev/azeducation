@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// Helper class for dropdown configuration
 class DropdownConfig {
   final String label;
   final String keyName;
-  final AsyncValue<List<DropdownItem>> Function(WidgetRef ref, Map<String, String> selections) itemsProvider;
+  final AsyncValue<List<DropdownItem>> Function(
+    WidgetRef ref,
+    Map<String, String> selections,
+  )
+  itemsProvider;
 
-  DropdownConfig({required this.label, required this.keyName, required this.itemsProvider});
+  DropdownConfig({
+    required this.label,
+    required this.keyName,
+    required this.itemsProvider,
+  });
 }
 
 /// Standardized dropdown item
@@ -21,7 +30,12 @@ class DropdownItem {
 class AddEntityPage extends ConsumerStatefulWidget {
   final String title;
   final List<DropdownConfig> dropdowns;
-  final Future<void> Function(WidgetRef ref, String name, Map<String, String> selections) onSubmit;
+  final Future<void> Function(
+    WidgetRef ref,
+    String name,
+    Map<String, String> selections,
+  )
+  onSubmit;
 
   const AddEntityPage({
     super.key,
@@ -40,6 +54,18 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
   bool _loading = false;
 
   Future<void> _submit() async {
+    // Check internet connectivity
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No internet connection. Please try again later."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     // Validate dropdowns and text
     if (_controller.text.trim().isEmpty ||
         widget.dropdowns.any((d) => _selections[d.keyName] == null)) {
@@ -59,9 +85,9 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
       Navigator.pop(context);
     } catch (e, st) {
       debugPrint("❌ Error adding ${widget.title}: $e\n$st");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       setState(() => _loading = false);
     }
@@ -77,39 +103,47 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
           child: Column(
             children: [
               // Dynamic dropdowns
-              ...widget.dropdowns.map((d) => Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Consumer(
-                      builder: (context, ref, _) {
-                        final items = d.itemsProvider(ref, _selections);
-                        return items.when(
-                          data: (list) => DropdownButtonFormField<String>(
-                            value: _selections[d.keyName],
-                            decoration: InputDecoration(labelText: d.label),
-                            isExpanded: true,
-                            items: list
-                                .map((e) => DropdownMenuItem(
-                                      value: e.id,
-                                      child: Text(e.name),
-                                    ))
-                                .toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                _selections[d.keyName] = val!;
-                                // Reset dependent dropdowns
-                                final index = widget.dropdowns.indexOf(d);
-                                for (var i = index + 1; i < widget.dropdowns.length; i++) {
-                                  _selections.remove(widget.dropdowns[i].keyName);
-                                }
-                              });
-                            },
-                          ),
-                          loading: () => const CircularProgressIndicator(),
-                          error: (e, _) => Text("Error loading ${d.label}: $e"),
-                        );
-                      },
-                    ),
-                  )),
+              ...widget.dropdowns.map(
+                (d) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Consumer(
+                    builder: (context, ref, _) {
+                      final items = d.itemsProvider(ref, _selections);
+                      return items.when(
+                        data: (list) => DropdownButtonFormField<String>(
+                          value: _selections[d.keyName],
+                          decoration: InputDecoration(labelText: d.label),
+                          isExpanded: true,
+                          items: list
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e.id,
+                                  child: Text(e.name),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selections[d.keyName] = val!;
+                              // Reset dependent dropdowns
+                              final index = widget.dropdowns.indexOf(d);
+                              for (
+                                var i = index + 1;
+                                i < widget.dropdowns.length;
+                                i++
+                              ) {
+                                _selections.remove(widget.dropdowns[i].keyName);
+                              }
+                            });
+                          },
+                        ),
+                        loading: () => const CircularProgressIndicator(),
+                        error: (e, _) => Text("Error loading ${d.label}: $e"),
+                      );
+                    },
+                  ),
+                ),
+              ),
 
               // Name input
               TextField(
