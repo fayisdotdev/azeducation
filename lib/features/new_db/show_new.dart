@@ -9,8 +9,29 @@ class EducationSummaryPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stages = ref.watch(stageListProvider);
 
+    void refreshData() {
+      ref.invalidate(stageListProvider); // invalidate stages
+      // optionally, invalidate other providers too
+      ref.invalidate(boardListProvider);
+      ref.invalidate(streamListProvider);
+      ref.invalidate(coreSubjectsProvider);
+      ref.invalidate(electivesProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Refreshing data...")),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Education Summary")),
+      appBar: AppBar(
+        title: const Text("Education Summary"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: refreshData,
+            tooltip: "Refresh Data",
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: stages.when(
@@ -115,7 +136,7 @@ class EducationSummaryPage extends ConsumerWidget {
                                                     ),
                                                   ),
                                                 );
-                                              }).toList(),
+                                              }),
                                             ],
                                           ),
                                         ),
@@ -129,7 +150,7 @@ class EducationSummaryPage extends ConsumerWidget {
                                 ),
                                 error: (e, st) => Text("Error loading streams: $e"),
                               );
-                            }).toList(),
+                            }),
                           ],
                         ),
                       ),
