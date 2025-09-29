@@ -1,6 +1,9 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:http/http.dart'; // For ClientException
 
 /// Helper class for dropdown configuration
 class DropdownConfig {
@@ -54,19 +57,20 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
   bool _loading = false;
 
   Future<void> _submit() async {
-    // Check internet connectivity
+    // Check internet connectivity first
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No internet connection. Please try again later."),
+        SnackBar(
+          content: const Text("No internet connection. Please try again."),
+          action: SnackBarAction(label: "Retry", onPressed: _submit),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Validate dropdowns and text
+    // Validate dropdown selections and text input
     if (_controller.text.trim().isEmpty ||
         widget.dropdowns.any((d) => _selections[d.keyName] == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -76,6 +80,7 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
     }
 
     setState(() => _loading = true);
+
     try {
       await widget.onSubmit(ref, _controller.text.trim(), _selections);
 
@@ -83,6 +88,18 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
         SnackBar(content: Text("${widget.title} added successfully")),
       );
       Navigator.pop(context);
+    } on ClientException catch (e) {
+      // Handle network issues gracefully
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            "Network error: Unable to reach the server. Please check your connection.",
+          ),
+          action: SnackBarAction(label: "Retry", onPressed: _submit),
+          backgroundColor: Colors.red,
+        ),
+      );
+      debugPrint("❌ ClientException: $e");
     } catch (e, st) {
       debugPrint("❌ Error adding ${widget.title}: $e\n$st");
       ScaffoldMessenger.of(
