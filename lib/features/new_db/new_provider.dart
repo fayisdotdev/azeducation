@@ -61,4 +61,16 @@ final addStreamProvider =
         .addStream(params.streamName, params.boardId);
     ref.invalidate(streamListProvider(params.boardId));
   },
+
+  
 );
+
+final allStreamsProvider = FutureProvider.autoDispose<List<StreamModel>>((ref) async {
+  final boards = await ref.watch(boardListProvider.future);
+  List<StreamModel> allStreams = [];
+  for (var board in boards) {
+    final streams = await ref.watch(streamListProvider(board.boardId).future);
+    allStreams.addAll(streams);
+  }
+  return allStreams;
+});

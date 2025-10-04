@@ -66,27 +66,25 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+                // if (user.isAdmin || user.isTeacher)
+                //   ElevatedButton(
+                //     onPressed: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (_) => const CourseSession(),
+                //         ),
+                //       );
+                //     },
+                //     child: const Text("Course Session"),
+                //   ),
+                //   const SizedBox(height: 24),
                 if (user.isAdmin || user.isTeacher)
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const CourseSession(),
-                        ),
-                      );
-                    },
-                    child: const Text("Course Session"),
-                  ),
-                  const SizedBox(height: 24),
-                if (user.isAdmin || user.isTeacher)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const NewSession(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const NewSession()),
                       );
                     },
                     child: const Text("New Session"),

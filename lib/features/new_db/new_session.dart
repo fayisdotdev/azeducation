@@ -1,3 +1,4 @@
+import 'package:azeducation/features/new_db/allsubjcets.dart';
 import 'package:azeducation/features/new_db/board/add_board.dart';
 import 'package:azeducation/features/new_db/show_new.dart';
 import 'package:azeducation/features/new_db/subjects/add_core.dart';
@@ -76,10 +77,24 @@ class NewSession extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const EducationSummaryPage()),
+                    MaterialPageRoute(
+                      builder: (_) => const EducationSummaryPage(),
+                    ),
                   );
                 },
                 child: const Text("Show everything"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EducationSummaryTabs(),
+                    ),
+                  );
+                },
+                child: const Text("Show everything tabs"),
               ),
             ],
           ),
