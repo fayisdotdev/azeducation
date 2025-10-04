@@ -12,8 +12,7 @@ class DropdownConfig {
   final AsyncValue<List<DropdownItem>> Function(
     WidgetRef ref,
     Map<String, String> selections,
-  )
-  itemsProvider;
+  ) itemsProvider;
 
   DropdownConfig({
     required this.label,
@@ -37,14 +36,17 @@ class AddEntityPage extends ConsumerStatefulWidget {
     WidgetRef ref,
     String name,
     Map<String, String> selections,
-  )
-  onSubmit;
+  ) onSubmit;
+
+  /// Optional: if true, show its own AppBar (when used as full page)
+  final bool showScaffold;
 
   const AddEntityPage({
     super.key,
     required this.title,
     required this.dropdowns,
     required this.onSubmit,
+    this.showScaffold = true,
   });
 
   @override
@@ -63,14 +65,14 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("No internet connection. Please try again."),
-          action: SnackBarAction(label: "Retry", onPressed: _submit),
           backgroundColor: Colors.red,
+          action: SnackBarAction(label: "Retry", onPressed: _submit),
         ),
       );
       return;
     }
 
-    // Validate dropdown selections and text input
+    // Validate input
     if (_controller.text.trim().isEmpty ||
         widget.dropdowns.any((d) => _selections[d.keyName] == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,28 +85,24 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
 
     try {
       await widget.onSubmit(ref, _controller.text.trim(), _selections);
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("${widget.title} added successfully")),
       );
-      Navigator.pop(context);
-    } on ClientException catch (e) {
-      // Handle network issues gracefully
+
+      if (widget.showScaffold) Navigator.pop(context);
+    } on ClientException {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
-            "Network error: Unable to reach the server. Please check your connection.",
-          ),
-          action: SnackBarAction(label: "Retry", onPressed: _submit),
+              "Network error: Unable to reach the server. Please check your connection."),
           backgroundColor: Colors.red,
+          action: SnackBarAction(label: "Retry", onPressed: _submit),
         ),
       );
-      debugPrint("❌ ClientException: $e");
     } catch (e, st) {
       debugPrint("❌ Error adding ${widget.title}: $e\n$st");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       setState(() => _loading = false);
     }
@@ -112,74 +110,81 @@ class _AddEntityPageState extends ConsumerState<AddEntityPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Add ${widget.title}")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Dynamic dropdowns
-              ...widget.dropdowns.map(
-                (d) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Consumer(
-                    builder: (context, ref, _) {
-                      final items = d.itemsProvider(ref, _selections);
-                      return items.when(
-                        data: (list) => DropdownButtonFormField<String>(
-                          value: _selections[d.keyName],
-                          decoration: InputDecoration(labelText: d.label),
-                          isExpanded: true,
-                          items: list
-                              .map(
-                                (e) => DropdownMenuItem(
-                                  value: e.id,
-                                  child: Text(e.name),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              _selections[d.keyName] = val!;
-                              // Reset dependent dropdowns
-                              final index = widget.dropdowns.indexOf(d);
-                              for (
-                                var i = index + 1;
-                                i < widget.dropdowns.length;
-                                i++
-                              ) {
-                                _selections.remove(widget.dropdowns[i].keyName);
-                              }
-                            });
-                          },
-                        ),
-                        loading: () => const CircularProgressIndicator(),
-                        error: (e, _) => Text("Error loading ${d.label}: $e"),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // Name input
-              TextField(
-                controller: _controller,
-                decoration: InputDecoration(labelText: "${widget.title} Name"),
-              ),
-              const SizedBox(height: 16),
-
-              // Submit button
-              _loading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _submit,
-                      child: const Text("Add"),
+    final formContent = Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          ...widget.dropdowns.map(
+            (d) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final items = d.itemsProvider(ref, _selections);
+                  return items.when(
+                    data: (list) => DropdownButtonFormField<String>(
+                      value: _selections[d.keyName],
+                      decoration: InputDecoration(labelText: d.label),
+                      isExpanded: true,
+                      items: list
+                          .map(
+                            (e) => DropdownMenuItem(
+                              value: e.id,
+                              child: Text(e.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selections[d.keyName] = val!;
+                          // Reset dependent dropdowns
+                          final index = widget.dropdowns.indexOf(d);
+                          for (var i = index + 1;
+                              i < widget.dropdowns.length;
+                              i++) {
+                            _selections.remove(widget.dropdowns[i].keyName);
+                          }
+                        });
+                      },
                     ),
-            ],
+                    loading: () => const CircularProgressIndicator(),
+                    error: (e, _) => Text("Error loading ${d.label}: $e"),
+                  );
+                },
+              ),
+            ),
           ),
-        ),
+
+          // Name input
+          TextField(
+            controller: _controller,
+            decoration: InputDecoration(labelText: "${widget.title} Name"),
+          ),
+          const SizedBox(height: 16),
+
+          // Submit button
+          _loading
+              ? const CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: _submit,
+                  child: const Text("Add"),
+                ),
+        ],
       ),
+    );
+
+    // ✅ Optionally wrap with Scaffold if used as standalone page
+    if (widget.showScaffold) {
+      return Scaffold(
+        appBar: AppBar(title: Text("Add ${widget.title}")),
+        body: SingleChildScrollView(child: formContent),
+      );
+    }
+
+    // ✅ Otherwise return as a normal widget (for embedding)
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.all(8),
+      child: SingleChildScrollView(child: formContent),
     );
   }
 }

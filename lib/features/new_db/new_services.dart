@@ -29,31 +29,36 @@ class EducationService {
 
   Future<List<BoardModel>> fetchBoards(String stageId) async {
     print("⏳ Fetching boards for stage $stageId...");
-    final response =
-        await supabase.from('boards').select('*, stages2(*)').eq('stage_id', stageId);
+    final response = await supabase
+        .from('boards')
+        .select('*, stages2(*)')
+        .eq('stage_id', stageId);
     return (response as List)
         .map((b) => BoardModel.fromMap(b as Map<String, dynamic>))
         .toList();
   }
 
   // ---------- Streams ----------
-  Future<void> addStream(String name, String boardId) async {
-    await supabase.from('streams').insert({
-      'stream_name': name,
-      'board_id': boardId,
-    });
+  Future<String> addStream(String name, String boardId) async {
+    final response = await supabase
+        .from('streams')
+        .insert({'stream_name': name, 'board_id': boardId})
+        .select()
+        .single();
+    return response['stream_id'] as String;
   }
 
-Future<List<StreamModel>> fetchStreams(String boardId) async {
-  final response = await supabase
-      .from('streams')
-      .select()
-      .eq('board_id', boardId);
+  Future<List<StreamModel>> fetchStreams(String boardId) async {
+    final response = await supabase
+        .from('streams')
+        .select()
+        .eq('board_id', boardId);
 
-  final data = response as List<dynamic>; // <-- important
-  return data.map((json) => StreamModel.fromJson(json as Map<String, dynamic>)).toList();
-}
-
+    final data = response as List<dynamic>; // <-- important
+    return data
+        .map((json) => StreamModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
 
   // ---------- Core Subjects ----------
   Future<void> addCoreSubject(String name, String streamId) async {
