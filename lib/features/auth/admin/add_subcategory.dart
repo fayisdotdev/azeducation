@@ -15,25 +15,32 @@ class _AddSubCategoryPageState extends ConsumerState<AddSubCategoryPage> {
   String? _selectedCategoryId;
   bool _loading = false;
 
-  Future<void> _submit() async {
-    if (_controller.text.trim().isEmpty || _selectedCategoryId == null) return;
-
-    setState(() => _loading = true);
-    try {
-      await ref
-          .read(courseServiceProvider)
-          .addSubCategory(_controller.text.trim(), _selectedCategoryId!);
-      ref.invalidate(subCategoryListProvider(_selectedCategoryId!));
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Subcategory added")));
-        Navigator.pop(context);
-      }
-    } finally {
-      setState(() => _loading = false);
-    }
+Future<void> _submit() async {
+  if (_controller.text.trim().isEmpty || _selectedCategoryId == null) {
+    debugPrint("Submission blocked: no subcategory name or category selected");
+    return; // ✅ prevents sending invalid UUID
   }
+
+  debugPrint("Adding subcategory '${_controller.text}' for category '$_selectedCategoryId'");
+
+  try {
+    await ref
+        .read(courseServiceProvider)
+        .addSubCategory(_controller.text.trim(), _selectedCategoryId!);
+    ref.invalidate(subCategoryListProvider(_selectedCategoryId!));
+    debugPrint("Subcategory added successfully");
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Subcategory added")),
+      );
+      Navigator.pop(context);
+    }
+  } catch (e, stack) {
+    debugPrint("Error adding subcategory -> $e");
+    debugPrint("$stack");
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -47,22 +54,29 @@ class _AddSubCategoryPageState extends ConsumerState<AddSubCategoryPage> {
           children: [
             categories.when(
               data: (cats) {
+                debugPrint("AddSubCategoryPage: Loaded ${cats.length} categories");
                 return DropdownButtonFormField<String>(
                   value: _selectedCategoryId,
                   items: cats
                       .map(
                         (c) => DropdownMenuItem(
                           value: c.categoryId,
-                          child: Text(c.categoryName),
+                          child: Text(c.categoryName ?? 'Uncategorized'),
                         ),
                       )
                       .toList(),
-                  onChanged: (val) => setState(() => _selectedCategoryId = val),
+                  onChanged: (val) {
+                    debugPrint("AddSubCategoryPage: Selected category $val");
+                    setState(() => _selectedCategoryId = val);
+                  },
                   decoration: const InputDecoration(labelText: "Category"),
                 );
               },
               loading: () => const CircularProgressIndicator(),
-              error: (e, _) => Text("Error: $e"),
+              error: (e, _) {
+                debugPrint("AddSubCategoryPage: Error loading categories -> $e");
+                return const SizedBox(); // Don't show error in UI
+              },
             ),
             TextField(
               controller: _controller,
@@ -72,9 +86,10 @@ class _AddSubCategoryPageState extends ConsumerState<AddSubCategoryPage> {
             _loading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(onPressed: _submit, child: const Text("Add")),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                debugPrint("AddSubCategoryPage: Navigating to AddCategoryPage");
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const AddCategoryPage()),

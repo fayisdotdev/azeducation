@@ -27,7 +27,7 @@ class CourseModel {
     this.note3,
     this.curriculum,
     this.imageUrl,
-});
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -65,19 +65,22 @@ class CourseModel {
       imageUrl: map['image_url'],
     );
   }
-  
 }
 
 class Category {
-  final String categoryId;
+  final String categoryId; // keep non-nullable if DB always returns a UUID
   final String categoryName;
 
   Category({required this.categoryId, required this.categoryName});
 
   factory Category.fromMap(Map<String, dynamic> map) {
+    if (map['category_id'] == null) {
+      throw Exception('Category ID is null, invalid DB data');
+    }
+
     return Category(
-      categoryId: map['category_id'], // matches DB
-      categoryName: map['category_name'], // matches DB
+      categoryId: map['category_id'],
+      categoryName: map['category_name'] ?? 'Uncategorized',
     );
   }
 }
@@ -95,10 +98,9 @@ class SubCategory {
 
   factory SubCategory.fromMap(Map<String, dynamic> map) {
     return SubCategory(
-      subCategoryId: map['subcategory_id'], // matches DB
-      subcategoryName: map['subcategory_name'], // matches DB
-      categoryId: map['category_id'],
+      subCategoryId: map['subcategory_id']?.toString() ?? 'unknown_sub_id',
+      subcategoryName: map['subcategory_name']?.toString() ?? 'Uncategorized',
+      categoryId: map['category_id']?.toString() ?? 'unknown_cat_id',
     );
   }
 }
-

@@ -4,8 +4,6 @@ import 'package:azeducation/features/new_db/new_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// ...existing imports...
-
 class AddStreamPage extends ConsumerStatefulWidget {
   const AddStreamPage({super.key});
 
@@ -14,7 +12,6 @@ class AddStreamPage extends ConsumerStatefulWidget {
 }
 
 class _AddStreamPageState extends ConsumerState<AddStreamPage> {
-  // Controllers for stream details
   final _descriptionController = TextEditingController();
   final _durationController = TextEditingController();
   final _feesController = TextEditingController();
@@ -48,7 +45,7 @@ class _AddStreamPageState extends ConsumerState<AddStreamPage> {
           children: [
             // ✅ Stream Name + Dropdowns first
             AddEntityPage(
-              showScaffold: false, // embedded, no Scaffold
+              showScaffold: false,
               title: "Stream",
               dropdowns: [
                 DropdownConfig(
@@ -80,10 +77,9 @@ class _AddStreamPageState extends ConsumerState<AddStreamPage> {
                     .read(educationServiceProvider)
                     .addStream(name, selections["boardId"]!);
 
-                // 2️⃣ Add Stream Details
                 await ref.read(educationServiceProvider).addStreamDetails(
                   StreamDetailModel(
-                    detailId: '', // let DB generate
+                    detailId: '',
                     streamId: streamId,
                     description: _descriptionController.text,
                     duration: _durationController.text,
@@ -97,7 +93,6 @@ class _AddStreamPageState extends ConsumerState<AddStreamPage> {
                   ),
                 );
 
-                // 3️⃣ Refresh stream list
                 ref.invalidate(streamListProvider(selections["boardId"]!));
 
                 ScaffoldMessenger.of(context).showSnackBar(
