@@ -10,6 +10,8 @@ class StudentSignupPage extends ConsumerStatefulWidget {
   ConsumerState<StudentSignupPage> createState() => _StudentSignupPageState();
 }
 
+// ...existing imports...
+
 class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -18,30 +20,34 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
   final _mobileController = TextEditingController();
 
   bool _loading = false;
-  List<Map<String, dynamic>> _courses = [];
-  String? _selectedCourse;
+  List<Map<String, dynamic>> _coreSubjects = [];
+  String? _selectedCoreSubjectId;
 
   @override
   void initState() {
     super.initState();
-    _fetchCourses();
+    _fetchCoreSubjectsWithStreams();
   }
 
-  Future<void> _fetchCourses() async {
+  Future<void> _fetchCoreSubjectsWithStreams() async {
     try {
-      final response = await Supabase.instance.client.from("courses").select("id, name").order("name");
+      final supabase = Supabase.instance.client;
+      // Join core_subjects with streams to get stream name
+      final response = await supabase
+          .from("core_subjects")
+          .select("core_id, subject_name, stream_id, streams(stream_name)");
       setState(() {
-        _courses = (response as List).cast<Map<String, dynamic>>();
+        _coreSubjects = (response as List).cast<Map<String, dynamic>>();
       });
     } catch (e) {
-      debugPrint("Error fetching courses: $e");
+      debugPrint("Error fetching core subjects: $e");
     }
   }
 
   Future<void> _signupStudent() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedCourse == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a course")));
+    if (_selectedCoreSubjectId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a core subject")));
       return;
     }
 
@@ -56,7 +62,7 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
         role: "student",
         extraData: {
           "is_student": true,
-          "courses": [_selectedCourse],
+          "core_subject_id": _selectedCoreSubjectId,
         },
       );
 
@@ -96,11 +102,17 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
               TextFormField(controller: _mobileController, decoration: const InputDecoration(labelText: "Mobile", border: OutlineInputBorder()), validator: (val) => val!.isEmpty ? "Enter mobile" : null),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedCourse,
-                hint: const Text("Select a Course"),
-                items: _courses.map((c) => DropdownMenuItem(value: c["name"] as String, child: Text(c["name"] as String))).toList(),
-                onChanged: (val) => setState(() => _selectedCourse = val),
-                decoration: const InputDecoration(labelText: "Course", border: OutlineInputBorder()),
+                value: _selectedCoreSubjectId,
+                hint: const Text("Select Core Subject"),
+                items: _coreSubjects.map((c) {
+                  final streamName = c["streams"]?["stream_name"] ?? "";
+                  return DropdownMenuItem(
+                    value: c["core_id"] as String,
+                    child: Text("${c["subject_name"]} (${streamName})"),
+                  );
+                }).toList(),
+                onChanged: (val) => setState(() => _selectedCoreSubjectId = val),
+                decoration: const InputDecoration(labelText: "Core Subject", border: OutlineInputBorder()),
               ),
               const SizedBox(height: 24),
               _loading ? const CircularProgressIndicator() : ElevatedButton(onPressed: _signupStudent, child: const Text("Sign Up Student")),

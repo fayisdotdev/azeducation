@@ -2,12 +2,13 @@ import 'package:azeducation/features/auth/admin/add_admin.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
-import 'package:azeducation/features/courses/list_courses.dart';
 import 'package:azeducation/features/new_db/new_session.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:azeducation/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:azeducation/features/new_db/allsubjcets.dart';
+
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -95,7 +96,7 @@ class HomePage extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const CourseListPage(),
+                          builder: (_) => const EducationSummaryTabs(),
                         ),
                       );
                     },
