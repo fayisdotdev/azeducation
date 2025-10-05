@@ -3,8 +3,8 @@ import 'package:azeducation/features/new_db/new_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AddStage2Page extends ConsumerWidget {
-  const AddStage2Page({super.key});
+class AddstagePage extends ConsumerWidget {
+  const AddstagePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

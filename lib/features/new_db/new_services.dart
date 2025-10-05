@@ -11,11 +11,11 @@ class EducationService {
     await supabase.from('stages2').insert({'stage_name': name});
   }
 
-  Future<List<Stage2Model>> fetchStages() async {
+  Future<List<stageModel>> fetchStages() async {
     print("⏳ Fetching stages...");
     final response = await supabase.from('stages2').select();
     return (response as List)
-        .map((s) => Stage2Model.fromMap(s as Map<String, dynamic>))
+        .map((s) => stageModel.fromMap(s as Map<String, dynamic>))
         .toList();
   }
 

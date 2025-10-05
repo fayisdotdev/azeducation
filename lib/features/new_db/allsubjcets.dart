@@ -6,12 +6,12 @@ import 'package:azeducation/features/new_db/subjects/subjects_page_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
 class EducationSummaryTabs extends ConsumerStatefulWidget {
   const EducationSummaryTabs({super.key});
 
   @override
-  ConsumerState<EducationSummaryTabs> createState() => _EducationSummaryTabsState();
+  ConsumerState<EducationSummaryTabs> createState() =>
+      _EducationSummaryTabsState();
 }
 
 class _EducationSummaryTabsState extends ConsumerState<EducationSummaryTabs>
@@ -44,7 +44,7 @@ class _EducationSummaryTabsState extends ConsumerState<EducationSummaryTabs>
             Tab(text: "Subjects"),
           ],
         ),
-                actions: [
+        actions: [
           IconButton(
             icon: const Icon(Icons.login),
             tooltip: "Login",
