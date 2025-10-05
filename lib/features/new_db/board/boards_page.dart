@@ -1,7 +1,7 @@
+import 'package:azeducation/features/new_db/new_provider.dart';
+import 'package:azeducation/features/new_db/stream/streams_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../new_provider.dart';
-import '../stream/streams_page.dart';
 
 class BoardsPage extends ConsumerWidget {
   final String stageId;
