@@ -8,32 +8,52 @@ class StagesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stages = ref.watch(stageListProvider);
+    final stagesAsync = ref.watch(stageListProvider);
 
-    return stages.when(
-      data: (stageList) {
-        if (stageList.isEmpty) return const Center(child: Text("No stages available."));
-        return ListView.builder(
-          itemCount: stageList.length,
-          itemBuilder: (context, index) {
-            final stage = stageList[index];
-            return ListTile(
-              title: Text(stage.stageName),
-              trailing: const Icon(Icons.arrow_forward),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BoardsPage(stageId: stage.stageId, stageName: stage.stageName),
-                  ),
-                );
-              },
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Stages"),
+        centerTitle: true,
+      ),
+      body: stagesAsync.when(
+        data: (stages) {
+          if (stages.isEmpty) {
+            return const Center(
+              child: Text("No stages available."),
             );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text("Error loading stages: $e")),
+          }
+
+          return ListView.separated(
+            itemCount: stages.length,
+            separatorBuilder: (_, __) => const Divider(height: 0),
+            itemBuilder: (context, index) {
+              final stage = stages[index];
+              return ListTile(
+                title: Text(stage.stageName),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BoardsPage(
+                        stageId: stage.stageId,
+                        stageName: stage.stageName,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(
+          child: Text(
+            "Error loading stages: $e",
+            style: const TextStyle(color: Colors.red),
+          ),
+        ),
+      ),
     );
   }
 }

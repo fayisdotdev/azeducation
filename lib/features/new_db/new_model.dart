@@ -220,3 +220,68 @@ class StreamDetailModel {
     };
   }
 }
+
+class SubjectModel {
+  final String id;
+  final String subjectName;
+  final String? duration;
+  final num? fees;
+  final String? note1;
+  final String? note2;
+  final String? note3;
+  final String? curriculum;
+  final String? imageUrl;
+  final String? stageId;
+  final String? classId;
+  final DateTime? createdAt;
+
+  SubjectModel({
+    required this.id,
+    required this.subjectName,
+    this.duration,
+    this.fees,
+    this.note1,
+    this.note2,
+    this.note3,
+    this.curriculum,
+    this.imageUrl,
+    this.stageId,
+    this.classId,
+    this.createdAt,
+  });
+
+  factory SubjectModel.fromMap(Map<String, dynamic> map) {
+    return SubjectModel(
+      id: map['id'] ?? '',
+      subjectName: map['subjectName'] ?? '',
+      duration: map['duration'],
+      fees: map['fees'],
+      note1: map['note1'],
+      note2: map['note2'],
+      note3: map['note3'],
+      curriculum: map['curriculum'],
+      imageUrl: map['image_url'],
+      stageId: map['stage_id'],
+      classId: map['class_id'],
+      createdAt: map['created_at'] != null
+          ? DateTime.parse(map['created_at'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'subjectName': subjectName,
+      'duration': duration,
+      'fees': fees,
+      'note1': note1,
+      'note2': note2,
+      'note3': note3,
+      'curriculum': curriculum,
+      'image_url': imageUrl,
+      'stage_id': stageId,
+      'class_id': classId,
+    };
+  }
+}

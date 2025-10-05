@@ -43,3 +43,53 @@ class StreamsPage extends ConsumerWidget {
     );
   }
 }
+
+class StreamsPageTab extends ConsumerStatefulWidget {
+  const StreamsPageTab({super.key});
+
+  @override
+  ConsumerState<StreamsPageTab> createState() => _StreamsPageTabState();
+}
+
+class _StreamsPageTabState extends ConsumerState<StreamsPageTab> {
+  String? selectedBoardId;
+  String? selectedBoardName;
+
+  @override
+  Widget build(BuildContext context) {
+    final boards = ref.watch(allBoardsProvider); // You may need a provider that fetches all boards
+
+    return boards.when(
+      data: (boardList) {
+        return Column(
+          children: [
+            DropdownButton<String>(
+              hint: const Text("Select Board"),
+              value: selectedBoardId,
+              isExpanded: true,
+              items: boardList.map((b) {
+                return DropdownMenuItem(
+                  value: b.boardId,
+                  child: Text(b.boardName),
+                );
+              }).toList(),
+              onChanged: (val) {
+                final board = boardList.firstWhere((b) => b.boardId == val);
+                setState(() {
+                  selectedBoardId = board.boardId;
+                  selectedBoardName = board.boardName;
+                });
+              },
+            ),
+            if (selectedBoardId != null)
+              Expanded(
+                child: StreamsPage(boardId: selectedBoardId!, boardName: selectedBoardName!),
+              ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text("Error loading boards: $e")),
+    );
+  }
+}

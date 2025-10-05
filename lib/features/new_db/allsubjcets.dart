@@ -1,7 +1,8 @@
+import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/new_db/board/boards_page.dart';
 import 'package:azeducation/features/new_db/stage2/stages_page.dart';
 import 'package:azeducation/features/new_db/stream/streams_page.dart';
-import 'package:azeducation/features/new_db/subjects/subjects_page.dart';
+import 'package:azeducation/features/new_db/subjects/subjects_page_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -43,14 +44,33 @@ class _EducationSummaryTabsState extends ConsumerState<EducationSummaryTabs>
             Tab(text: "Subjects"),
           ],
         ),
+                actions: [
+          IconButton(
+            icon: const Icon(Icons.login),
+            tooltip: "Login",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: TabBarView(
         controller: _tabController,
         children: const [
+          // Stage tab
           StagesPage(),
-          BoardsPage(stageId: '', stageName: '',),   // Shows all boards with a stage dropdown
-          StreamsPage(boardId: '', boardName: '',),  // Shows all streams with a board dropdown
-          SubjectsPage(streamId: '', streamName: '',), // Shows subjects for selected stream
+
+          // Boards tab: handles stage selection internally
+          BoardsPageTab(),
+
+          // Streams tab: handles board selection internally
+          StreamsPageTab(),
+
+          // Subjects tab: handles stream selection internally
+          SubjectsPageTab(),
         ],
       ),
     );

@@ -2,7 +2,6 @@ import 'package:azeducation/features/auth/admin/add_admin.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
-import 'package:azeducation/features/courses/course_session.dart';
 import 'package:azeducation/features/courses/list_courses.dart';
 import 'package:azeducation/features/new_db/new_session.dart';
 import 'package:azeducation/providers/auth_provider.dart';

@@ -65,7 +65,7 @@ class _AddCoreSubjectPageState extends ConsumerState<AddCoreSubjectPage> {
       onSubmit: (ref, name, selections) async {
         await ref
             .read(educationServiceProvider)
-            .addCoreSubject(name, selections["streamId"]!);
+            .addSubject(name:name,  stageId:selections["streamId"]!);
         ref.invalidate(coreSubjectsProvider(selections["streamId"]!));
       },
     );

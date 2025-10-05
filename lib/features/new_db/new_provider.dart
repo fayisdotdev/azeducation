@@ -24,10 +24,10 @@ final streamListProvider =
 });
 
 /// ---------- Core Subjects ----------
-final coreSubjectsProvider =
-    FutureProvider.family<List<CoreSubjectModel>, String>((ref, streamId) async {
-  return ref.read(educationServiceProvider).fetchCoreSubjects(streamId);
-});
+// final coreSubjectsProvider =
+//     FutureProvider.family<List<SubjectModel>, String>((ref, streamId) async {
+//   return ref.read(educationServiceProvider).fetchSubjects(streamId);
+// });
 
 /// ---------- Electives ----------
 final electivesProvider =
@@ -65,12 +65,30 @@ final addStreamProvider =
   
 );
 
-final allStreamsProvider = FutureProvider.autoDispose<List<StreamModel>>((ref) async {
-  final boards = await ref.watch(boardListProvider.future);
-  List<StreamModel> allStreams = [];
-  for (var board in boards) {
-    final streams = await ref.watch(streamListProvider(board.boardId).future);
-    allStreams.addAll(streams);
+
+/// ---------- All Streams ----------
+final allStreamsProvider = FutureProvider<List<StreamModel>>((ref) async {
+  return ref.read(educationServiceProvider).fetchAllStreams();
+});
+
+
+
+
+/// ---------- Core Subjects ----------
+final coreSubjectsProvider =
+    FutureProvider.family<List<CoreSubjectModel>, String>((ref, streamId) async {
+  return ref.read(educationServiceProvider).fetchCoreSubjects(streamId);
+});
+
+/// ---------- All Boards ----------
+final allBoardsProvider = FutureProvider<List<BoardModel>>((ref) async {
+  final service = ref.read(educationServiceProvider);
+  // Fetch all stages first
+  final stages = await service.fetchStages();
+  List<BoardModel> allBoards = [];
+  for (var stage in stages) {
+    final boards = await service.fetchBoards(stage.stageId);
+    allBoards.addAll(boards);
   }
-  return allStreams;
+  return allBoards;
 });

@@ -43,3 +43,54 @@ class BoardsPage extends ConsumerWidget {
     );
   }
 }
+
+
+class BoardsPageTab extends ConsumerStatefulWidget {
+  const BoardsPageTab({super.key});
+
+  @override
+  ConsumerState<BoardsPageTab> createState() => _BoardsPageTabState();
+}
+
+class _BoardsPageTabState extends ConsumerState<BoardsPageTab> {
+  String? selectedStageId;
+  String? selectedStageName;
+
+  @override
+  Widget build(BuildContext context) {
+    final stages = ref.watch(stageListProvider);
+
+    return stages.when(
+      data: (stageList) {
+        return Column(
+          children: [
+            DropdownButton<String>(
+              hint: const Text("Select Stage"),
+              value: selectedStageId,
+              isExpanded: true,
+              items: stageList.map((s) {
+                return DropdownMenuItem(
+                  value: s.stageId,
+                  child: Text(s.stageName),
+                );
+              }).toList(),
+              onChanged: (val) {
+                final stage = stageList.firstWhere((s) => s.stageId == val);
+                setState(() {
+                  selectedStageId = stage.stageId;
+                  selectedStageName = stage.stageName;
+                });
+              },
+            ),
+            if (selectedStageId != null)
+              Expanded(
+                child: BoardsPage(stageId: selectedStageId!, stageName: selectedStageName!),
+              ),
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text("Error loading stages: $e")),
+    );
+  }
+}
