@@ -1,6 +1,7 @@
 import 'package:azeducation/features/new_db/allsubjcets.dart';
 import 'package:azeducation/features/new_db/board/add_board.dart';
 import 'package:azeducation/features/new_db/show_new.dart';
+import 'package:azeducation/features/new_db/stream/add_stream_details.dart';
 import 'package:azeducation/features/new_db/subjects/add_core.dart';
 import 'package:azeducation/features/new_db/stage/add_stage.dart';
 import 'package:azeducation/features/new_db/stream/add_stream.dart';
@@ -49,6 +50,16 @@ class NewSession extends StatelessWidget {
                   );
                 },
                 child: const Text("Add Streams"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AddStreamDetailsPage()),
+                  );
+                },
+                child: const Text("Add Stream Details"),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
