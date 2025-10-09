@@ -1,6 +1,6 @@
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/new_db/board/boards_page.dart';
-import 'package:azeducation/features/new_db/stage2/stages_page.dart';
+import 'package:azeducation/features/new_db/stage/stages_page.dart';
 import 'package:azeducation/features/new_db/stream/streams_page.dart';
 import 'package:azeducation/features/new_db/subjects/subjects_page_tab.dart';
 import 'package:flutter/material.dart';

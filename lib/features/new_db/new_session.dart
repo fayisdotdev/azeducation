@@ -2,7 +2,7 @@ import 'package:azeducation/features/new_db/allsubjcets.dart';
 import 'package:azeducation/features/new_db/board/add_board.dart';
 import 'package:azeducation/features/new_db/show_new.dart';
 import 'package:azeducation/features/new_db/subjects/add_core.dart';
-import 'package:azeducation/features/new_db/stage2/add_stage2.dart';
+import 'package:azeducation/features/new_db/stage/add_stage.dart';
 import 'package:azeducation/features/new_db/stream/add_stream.dart';
 import 'package:azeducation/features/new_db/subjects/add_elective_subject.dart';
 import 'package:flutter/material.dart';
