@@ -8,12 +8,12 @@ class EducationService {
 
   // ---------- Stages ----------
   Future<void> addStage(String name) async {
-    await supabase.from('stages2').insert({'stage_name': name});
+    await supabase.from('stages').insert({'stage_name': name});
   }
 
   Future<List<Stage2Model>> fetchStages() async {
     print("⏳ Fetching stages...");
-    final response = await supabase.from('stages2').select();
+    final response = await supabase.from('stages').select();
     return (response as List)
         .map((s) => Stage2Model.fromMap(s as Map<String, dynamic>))
         .toList();
@@ -31,7 +31,7 @@ class EducationService {
     print("⏳ Fetching boards for stage $stageId...");
     final response = await supabase
         .from('boards')
-        .select('*, stages2(*)')
+        .select('*, stages(*)')
         .eq('stage_id', stageId);
     return (response as List)
         .map((b) => BoardModel.fromMap(b as Map<String, dynamic>))

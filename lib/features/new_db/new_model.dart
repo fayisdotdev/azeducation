@@ -3,23 +3,14 @@ class Stage2Model {
   final String stageId;
   final String stageName;
 
-  Stage2Model({
-    required this.stageId,
-    required this.stageName,
-  });
+  Stage2Model({required this.stageId, required this.stageName});
 
   factory Stage2Model.fromMap(Map<String, dynamic> map) {
-    return Stage2Model(
-      stageId: map['stage_id'],
-      stageName: map['stage_name'],
-    );
+    return Stage2Model(stageId: map['stage_id'], stageName: map['stage_name']);
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'stage_id': stageId,
-      'stage_name': stageName,
-    };
+    return {'stage_id': stageId, 'stage_name': stageName};
   }
 }
 
@@ -41,17 +32,13 @@ class BoardModel {
     return BoardModel(
       boardId: map['board_id'],
       boardName: map['board_name'],
-      stageId: map['stage_id'] ?? map['stages2']?['stage_id'] ?? '',
-      stageName: map['stages2']?['stage_name'],
+      stageId: map['stage_id'] ?? map['stages']?['stage_id'] ?? '',
+      stageName: map['stages']?['stage_name'],
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'board_id': boardId,
-      'board_name': boardName,
-      'stage_id': stageId,
-    };
+    return {'board_id': boardId, 'board_name': boardName, 'stage_id': stageId};
   }
 }
 
@@ -77,12 +64,15 @@ class StreamModel {
       boardId: (map['board_id'] ?? map['boards']?['board_id'] ?? '') as String,
       boardName: map['boards']?['board_name'] as String?,
       details: map['stream_details'] != null
-          ? StreamDetailModel.fromMap(map['stream_details'] as Map<String, dynamic>)
+          ? StreamDetailModel.fromMap(
+              map['stream_details'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
 
-  factory StreamModel.fromJson(Map<String, dynamic> json) => StreamModel.fromMap(json);
+  factory StreamModel.fromJson(Map<String, dynamic> json) =>
+      StreamModel.fromMap(json);
 
   Map<String, dynamic> toMap() {
     return {
@@ -92,7 +82,6 @@ class StreamModel {
     };
   }
 }
-
 
 // Core Subject
 class CoreSubjectModel {
@@ -192,7 +181,9 @@ class StreamDetailModel {
       streamId: map['stream_id'],
       description: map['description'],
       duration: map['duration'],
-      fees: map['fees'] != null ? double.tryParse(map['fees'].toString()) : null,
+      fees: map['fees'] != null
+          ? double.tryParse(map['fees'].toString())
+          : null,
       note1: map['note1'],
       note2: map['note2'],
       note3: map['note3'],
