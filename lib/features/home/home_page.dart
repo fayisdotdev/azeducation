@@ -3,6 +3,7 @@ import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
 import 'package:azeducation/features/new_db/new_session.dart';
+import 'package:azeducation/features/universities_tier/university_session.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:azeducation/providers/user_provider.dart';
 import 'package:flutter/material.dart';
@@ -66,19 +67,19 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // if (user.isAdmin || user.isTeacher)
-                //   ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //           builder: (_) => const CourseSession(),
-                //         ),
-                //       );
-                //     },
-                //     child: const Text("Course Session"),
-                //   ),
-                //   const SizedBox(height: 24),
+                if (user.isAdmin || user.isTeacher)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const UniversitySession(),
+                        ),
+                      );
+                    },
+                    child: const Text("Universiy Session"),
+                  ),
+                  const SizedBox(height: 24),
                 if (user.isAdmin || user.isTeacher)
                   ElevatedButton(
                     onPressed: () {
