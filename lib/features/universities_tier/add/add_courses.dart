@@ -16,17 +16,15 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
   String? selectedUniversityId;
   String? selectedCategoryId;
   final _controller = TextEditingController();
-  bool _isInit = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInit) {
-      // Fetch all data once
-      ref.read(dataProvider).fetchAll();
-      _isInit = true;
-    }
-  }
+@override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ref.read(dataProvider).fetchAll();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +45,15 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
                     items: provider.universities.isEmpty
                         ? []
                         : provider.universities
-                            .map((u) => DropdownMenuItem(
+                              .map(
+                                (u) => DropdownMenuItem(
                                   value: u.universityId,
                                   child: Text(u.universityName),
-                                ))
-                            .toList(),
-                    onChanged: (val) => setState(() => selectedUniversityId = val),
+                                ),
+                              )
+                              .toList(),
+                    onChanged: (val) =>
+                        setState(() => selectedUniversityId = val),
                   ),
 
                   SizedBox(height: 16),
@@ -63,12 +64,15 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
                     hint: Text("Select Category (optional)"),
                     items: [
                       DropdownMenuItem(value: null, child: Text("Not Decided")),
-                      ...provider.categories.map((c) => DropdownMenuItem(
-                            value: c.categoryId,
-                            child: Text(c.categoryName),
-                          )),
+                      ...provider.categories.map(
+                        (c) => DropdownMenuItem(
+                          value: c.categoryId,
+                          child: Text(c.categoryName),
+                        ),
+                      ),
                     ],
-                    onChanged: (val) => setState(() => selectedCategoryId = val),
+                    onChanged: (val) =>
+                        setState(() => selectedCategoryId = val),
                   ),
 
                   SizedBox(height: 16),
@@ -93,7 +97,9 @@ class _AddCoursePageState extends ConsumerState<AddCoursePage> {
                         Navigator.pop(context);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Please fill all required fields")),
+                          SnackBar(
+                            content: Text("Please fill all required fields"),
+                          ),
                         );
                       }
                     },

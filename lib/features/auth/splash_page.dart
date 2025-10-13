@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:azeducation/features/home/home_page.dart';
-import 'package:azeducation/features/new_db/allsubjcets.dart';
+import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +35,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const EducationSummaryTabs()),
+            MaterialPageRoute(builder: (_) => const UniversityCourseSubjectListPage()),
           );
         }
       });
@@ -64,7 +64,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
         ),
         SizedBox(height: 8),
         Text(
-          "v.9",
+          "v.10",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.normal,

@@ -2,14 +2,12 @@ import 'package:azeducation/features/auth/admin/add_admin.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
-import 'package:azeducation/features/new_db/new_session.dart';
+import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/features/universities_tier/university_session.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:azeducation/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:azeducation/features/new_db/allsubjcets.dart';
-
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -79,30 +77,22 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Universiy Session"),
                   ),
-                  const SizedBox(height: 24),
-                if (user.isAdmin || user.isTeacher)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const NewSession()),
-                      );
-                    },
-                    child: const Text("New Session"),
-                  ),
+
+
                 const SizedBox(height: 12),
-                if (user.isStudent || user.isTeacher || user.isAdmin)
+                if (user.isStudent)
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const EducationSummaryTabs(),
+                          builder: (_) => const UniversityCourseSubjectListPage(),
                         ),
                       );
                     },
-                    child: const Text("Show Courses"),
+                    child: const Text("Show Updated"),
                   ),
+
                 const SizedBox(height: 12),
                 if (user.isTeacher)
                   ElevatedButton(
