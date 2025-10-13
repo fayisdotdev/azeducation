@@ -75,7 +75,7 @@ class HomePage extends ConsumerWidget {
                         ),
                       );
                     },
-                    child: const Text("Universiy Session"),
+                    child: const Text("University Session"),
                   ),
 
 
