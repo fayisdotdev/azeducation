@@ -97,7 +97,7 @@ class UniversitySession extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text("Show everything"),
+                child: const Text("Universities and Courses"),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
