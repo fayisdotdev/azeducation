@@ -1,9 +1,9 @@
-import 'package:azeducation/features/auth/login_page.dart';
-import 'package:azeducation/features/universities_tier/add/add_university.dart';
-import 'package:azeducation/features/universities_tier/show/category_courses.dart';
-import 'package:azeducation/features/universities_tier/show/detailed_page.dart';
+import 'package:azeducation/features/universities_tier/add/add_courses.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:azeducation/features/auth/login_page.dart';
+import 'package:azeducation/features/universities_tier/university_model.dart';
+import 'package:azeducation/features/universities_tier/show/detailed_page.dart';
 
 class UniversityCourseSubjectListPage extends ConsumerStatefulWidget {
   const UniversityCourseSubjectListPage({super.key});
@@ -28,7 +28,9 @@ class _UniversityCourseSubjectListPageState
     final provider = ref.watch(dataProvider);
 
     if (provider.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
@@ -41,112 +43,234 @@ class _UniversityCourseSubjectListPageState
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
+                MaterialPageRoute(builder: (_) => const LoginPage()),
               );
             },
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: ElevatedButton(
-              // icon: const Icon(Icons.add),
-              child: const Text('View By Category'),
-              onPressed: () {
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.builder(
+          itemCount: provider.universities.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1,
+          ),
+          itemBuilder: (context, index) {
+            final university = provider.universities[index];
+
+            // Courses for this university
+            final coursesForUni = provider.courses
+                .where((c) => c.universityId == university.universityId)
+                .toList();
+
+            return InkWell(
+              onTap: () {
+                // Navigate to courses grid page for this university
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const CoursesByCategoryPage(),
+                    builder: (_) => CoursesGridPage(
+                      title: university.universityName,
+                      courses: coursesForUni,
+                    ),
                   ),
                 );
               },
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: provider.universities.length,
-              itemBuilder: (context, uniIndex) {
-                final university = provider.universities[uniIndex];
-
-                final coursesForUni = provider.courses
-                    .where((c) => c.universityId == university.universityId)
-                    .toList();
-
-                return ExpansionTile(
-                  title: Text(university.universityName),
-                  subtitle: Text("Courses: ${coursesForUni.length}"),
-                  children: coursesForUni.map((course) {
-                    final subjectsForCourse = provider.subjects
-                        .where((s) => s.courseId == course.courseId)
-                        .toList();
-
-                    final courseDetail = provider.courseDetails
-                        .where(
-                          (d) =>
-                              d.courseId == course.courseId &&
-                              d.subjectId == null,
-                        )
-                        .toList();
-
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: ExpansionTile(
-                        title: InkWell(
-                          onTap: () {
-                            if (courseDetail.isNotEmpty) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CourseDetailPage(
-                                    detail: courseDetail.first,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          child: Text(course.courseName),
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.school, size: 40, color: Colors.orange),
+                        const SizedBox(height: 8),
+                        Text(
+                          university.universityName,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(
-                          courseDetail.isEmpty
-                              ? "No details"
-                              : "Details available",
-                        ),
-                        children: subjectsForCourse.map((subject) {
-                          final subjectDetail = provider.courseDetails
-                              .where((d) => d.subjectId == subject.subjectId)
-                              .toList();
+                        const SizedBox(height: 4),
+                        Text("${coursesForUni.length} courses"),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
 
-                          return ListTile(
-                            title: Text(subject.subjectName),
-                            subtitle: Text(
-                              subjectDetail.isEmpty
-                                  ? "No details"
-                                  : "Details available",
+// Reuse CoursesGridPage and SubjectsGridPage from CategoryCoursesPage
+// to show courses and subjects in card/grid style
+class CoursesGridPage extends ConsumerWidget {
+  final String title;
+  final List<Course> courses;
+  const CoursesGridPage({super.key, required this.title, required this.courses});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = ref.watch(dataProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: courses.isEmpty
+            ? const Center(child: Text("No courses found."))
+            : GridView.builder(
+                itemCount: courses.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final course = courses[index];
+
+                  // Subjects for this course
+                  final subjects = provider.subjects
+                      .where((s) => s.courseId == course.courseId)
+                      .toList();
+
+                  final courseDetailsList = provider.courseDetails
+                      .where((d) =>
+                          d.courseId == course.courseId && d.subjectId == null)
+                      .toList();
+
+                  return Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    child: InkWell(
+                      onTap: () {
+                        if (subjects.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  SubjectsGridPage(title: course.courseName, subjects: subjects),
                             ),
-                            onTap: () {
-                              if (subjectDetail.isNotEmpty) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => CourseDetailPage(
-                                      detail: subjectDetail.first,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
                           );
-                        }).toList(),
+                        } else if (courseDetailsList.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  CourseDetailPage(detail: courseDetailsList.first),
+                            ),
+                          );
+                        }
+                      },
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.school_outlined,
+                                  size: 36, color: Colors.green),
+                              const SizedBox(height: 8),
+                              Text(course.courseName,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text(subjects.isEmpty ? "No subjects" : "${subjects.length} subjects"),
+                            ],
+                          ),
+                        ),
                       ),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
-          ),
-        ],
+                    ),
+                  );
+                },
+              ),
+      ),
+    );
+  }
+}
+
+class SubjectsGridPage extends ConsumerWidget {
+  final String title;
+  final List<Subject> subjects;
+  const SubjectsGridPage({super.key, required this.title, required this.subjects});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = ref.watch(dataProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: subjects.isEmpty
+            ? const Center(child: Text("No subjects found."))
+            : GridView.builder(
+                itemCount: subjects.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final subject = subjects[index];
+                  final details = provider.courseDetails
+                      .where((d) => d.subjectId == subject.subjectId)
+                      .toList();
+
+                  return Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    child: InkWell(
+                      onTap: () {
+                        if (details.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  CourseDetailPage(detail: details.first),
+                            ),
+                          );
+                        }
+                      },
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.subject, size: 36, color: Colors.orange),
+                              const SizedBox(height: 8),
+                              Text(subject.subjectName,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text(details.isEmpty ? "No details" : "Details available",
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
       ),
     );
   }

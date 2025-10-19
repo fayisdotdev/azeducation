@@ -2,6 +2,7 @@ import 'package:azeducation/features/auth/admin/add_admin.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
+import 'package:azeducation/features/universities_tier/show/category_courses.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/features/universities_tier/university_session.dart';
 import 'package:azeducation/features/universities_tier/videos/show.dart';
@@ -80,7 +81,7 @@ class HomePage extends ConsumerWidget {
                   ),
                 const SizedBox(height: 12),
 
-                if (user.isAdmin || user.isTeacher || user.isStudent)
+                if (user.isTeacher || user.isStudent)
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -93,7 +94,22 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Universities and Courses"),
                   ),
-                                  const SizedBox(height: 12),
+                const SizedBox(height: 12),
+                if (user.isAdmin || user.isTeacher || user.isStudent)
+                  ElevatedButton(
+                    // icon: const Icon(Icons.add),
+                    child: const Text('View By Category'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CoursesByCategoryPage(),
+                        ),
+                      );
+                    },
+                  ),
+
+                const SizedBox(height: 12),
 
                 if (user.isAdmin || user.isTeacher || user.isStudent)
                   ElevatedButton(
