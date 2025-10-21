@@ -142,9 +142,9 @@ class CoursesGridPage extends ConsumerWidget {
                       .where((s) => s.courseId == course.courseId)
                       .toList();
 
+                  // fetch all details for this course (course-level + subject-level)
                   final courseDetails = provider.courseDetails
-                      .where((d) =>
-                          d.courseId == course.courseId && d.subjectId == null)
+                      .where((d) => d.courseId == course.courseId)
                       .toList();
 
                   return Card(
@@ -160,9 +160,7 @@ class CoursesGridPage extends ConsumerWidget {
                             builder: (_) => CombinedCourseDetailPage(
                               course: course,
                               subjects: subjects,
-                              courseDetail: courseDetails.isNotEmpty
-                                  ? courseDetails.first
-                                  : null,
+                              courseDetails: courseDetails,
                             ),
                           ),
                         );

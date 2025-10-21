@@ -5,8 +5,6 @@ import 'package:azeducation/features/universities_tier/add/add_subject.dart';
 import 'package:azeducation/features/universities_tier/add/add_subject_details.dart';
 import 'package:azeducation/features/universities_tier/add/add_university.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
-import 'package:azeducation/features/universities_tier/videos/add.dart';
-import 'package:azeducation/features/universities_tier/videos/show.dart';
 import 'package:azeducation/features/universities_tier/videos/video_class_upload.dart';
 import 'package:azeducation/features/universities_tier/videos/view_video_class.dart';
 import 'package:flutter/material.dart';
@@ -104,32 +102,15 @@ class UniversitySession extends StatelessWidget {
                   },
                   child: const Text("Universities and Courses"),
                 ),
-                // const SizedBox(height: 20),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(builder: (_) => const UploadVideoPage()),
-                //     );
-                //   },
-                //   child: const Text("Upload video"),
-                // ),
-                // const SizedBox(height: 20),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(builder: (_) => const VideoStreamPage()),
-                //     );
-                //   },
-                //   child: const Text("show videos"),
-                // ),
+
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const UploadVideoClassPage()),
+                      MaterialPageRoute(
+                        builder: (_) => const UploadVideoClassPage(),
+                      ),
                     );
                   },
                   child: const Text("upload subject videos"),
@@ -139,7 +120,9 @@ class UniversitySession extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const VideoClassStreamPage()),
+                      MaterialPageRoute(
+                        builder: (_) => const VideoClassStreamPage(),
+                      ),
                     );
                   },
                   child: const Text("show subject videos"),
