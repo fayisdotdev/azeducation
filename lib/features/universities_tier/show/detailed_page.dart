@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+// ----- Combined Course Detail Page -----
 class CombinedCourseDetailPage extends StatelessWidget {
   final Course course;
   final List<Subject> subjects;
@@ -24,11 +25,11 @@ class CombinedCourseDetailPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
+            // Course Details
             if (courseDetail != null) ...[
-              const Text(
-                "Course Details",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              const Text("Course Details",
+                  style: TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               if (courseDetail!.description != null)
                 Text("Description: ${courseDetail!.description}"),
@@ -50,10 +51,10 @@ class CombinedCourseDetailPage extends StatelessWidget {
               ],
               const Divider(height: 24),
             ],
-            const Text(
-              "Subjects",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+
+            // Subjects
+            const Text("Subjects",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             if (subjects.isEmpty)
               const Text("No subjects available.")
@@ -64,6 +65,7 @@ class CombinedCourseDetailPage extends StatelessWidget {
                     title: Text(subject.subjectName),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
+                      // Navigate to Subject Detail Page
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -81,13 +83,14 @@ class CombinedCourseDetailPage extends StatelessWidget {
   }
 }
 
+// ----- Subject Detail Page -----
 class SubjectDetailPage extends ConsumerWidget {
   final Subject subject;
+
   const SubjectDetailPage({super.key, required this.subject});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Watch all videos
     final videos = ref.watch(videoClassProvider);
 
     // Filter videos for this subject
@@ -99,57 +102,55 @@ class SubjectDetailPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(subject.subjectName)),
-      body: videos.when(
-        data: (_) {
-          if (subjectVideos.isEmpty) {
-            return const Center(
-              child: Text("No videos available for this subject."),
-            );
-          }
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView(
+          children: [
+            // Subject Details (placeholder or from your model)
+            Text(
+              "Details for ${subject.subjectName} will appear here.",
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: subjectVideos.length,
-            itemBuilder: (context, index) {
-              final video = subjectVideos[index];
-              final videoId =
-                  YoutubePlayer.convertUrlToId(video.videoUrl) ?? '';
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        video.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text('${video.courseName} • ${video.universityName}'),
-                      const SizedBox(height: 4),
-                      if (video.categoryName != null)
-                        Text('Category: ${video.categoryName}'),
-                      if (videoId.isNotEmpty)
-                        YoutubePlayer(
-                          controller: YoutubePlayerController(
-                            initialVideoId: videoId,
-                            flags: const YoutubePlayerFlags(autoPlay: false),
+            // Videos for this subject
+            if (subjectVideos.isEmpty)
+              const Text("No videos available for this subject.")
+            else ...subjectVideos.map(
+              (video) {
+                final videoId =
+                    YoutubePlayer.convertUrlToId(video.videoUrl) ?? '';
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(video.title,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text('${video.courseName} • ${video.universityName}'),
+                        const SizedBox(height: 4),
+                        if (video.categoryName != null)
+                          Text('Category: ${video.categoryName}'),
+                        if (videoId.isNotEmpty)
+                          YoutubePlayer(
+                            controller: YoutubePlayerController(
+                              initialVideoId: videoId,
+                              flags: const YoutubePlayerFlags(autoPlay: false),
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error loading videos: $e')),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-//cool
