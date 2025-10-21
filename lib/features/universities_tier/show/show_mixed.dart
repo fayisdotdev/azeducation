@@ -62,14 +62,12 @@ class _UniversityCourseSubjectListPageState
           itemBuilder: (context, index) {
             final university = provider.universities[index];
 
-            // Courses for this university
             final coursesForUni = provider.courses
                 .where((c) => c.universityId == university.universityId)
                 .toList();
 
             return InkWell(
               onTap: () {
-                // Navigate to courses grid page for this university
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -114,8 +112,6 @@ class _UniversityCourseSubjectListPageState
   }
 }
 
-// Reuse CoursesGridPage and SubjectsGridPage from CategoryCoursesPage
-// to show courses and subjects in card/grid style
 class CoursesGridPage extends ConsumerWidget {
   final String title;
   final List<Course> courses;
@@ -142,12 +138,11 @@ class CoursesGridPage extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final course = courses[index];
 
-                  // Subjects for this course
                   final subjects = provider.subjects
                       .where((s) => s.courseId == course.courseId)
                       .toList();
 
-                  final courseDetailsList = provider.courseDetails
+                  final courseDetails = provider.courseDetails
                       .where((d) =>
                           d.courseId == course.courseId && d.subjectId == null)
                       .toList();
@@ -155,26 +150,22 @@ class CoursesGridPage extends ConsumerWidget {
                   return Card(
                     elevation: 3,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: InkWell(
                       onTap: () {
-                        if (subjects.isNotEmpty) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  SubjectsGridPage(title: course.courseName, subjects: subjects),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CombinedCourseDetailPage(
+                              course: course,
+                              subjects: subjects,
+                              courseDetail: courseDetails.isNotEmpty
+                                  ? courseDetails.first
+                                  : null,
                             ),
-                          );
-                        } else if (courseDetailsList.isNotEmpty) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  CourseDetailPage(detail: courseDetailsList.first),
-                            ),
-                          );
-                        }
+                          ),
+                        );
                       },
                       child: Center(
                         child: Padding(
@@ -190,79 +181,12 @@ class CoursesGridPage extends ConsumerWidget {
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold)),
                               const SizedBox(height: 4),
-                              Text(subjects.isEmpty ? "No subjects" : "${subjects.length} subjects"),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-      ),
-    );
-  }
-}
-
-class SubjectsGridPage extends ConsumerWidget {
-  final String title;
-  final List<Subject> subjects;
-  const SubjectsGridPage({super.key, required this.title, required this.subjects});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final provider = ref.watch(dataProvider);
-
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: subjects.isEmpty
-            ? const Center(child: Text("No subjects found."))
-            : GridView.builder(
-                itemCount: subjects.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1,
-                ),
-                itemBuilder: (context, index) {
-                  final subject = subjects[index];
-                  final details = provider.courseDetails
-                      .where((d) => d.subjectId == subject.subjectId)
-                      .toList();
-
-                  return Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    child: InkWell(
-                      onTap: () {
-                        if (details.isNotEmpty) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  CourseDetailPage(detail: details.first),
-                            ),
-                          );
-                        }
-                      },
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.subject, size: 36, color: Colors.orange),
-                              const SizedBox(height: 8),
-                              Text(subject.subjectName,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
-                              Text(details.isEmpty ? "No details" : "Details available",
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text(
+                                subjects.isEmpty
+                                    ? "No subjects"
+                                    : "${subjects.length} subjects",
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ],
                           ),
                         ),
