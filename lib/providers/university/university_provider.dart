@@ -1,5 +1,5 @@
 import 'package:azeducation/features/universities_tier/university_model.dart';
-import 'package:azeducation/features/universities_tier/university_services.dart';
+import 'package:azeducation/services/university_services.dart';
 import 'package:flutter/foundation.dart';
 
 class DataProvider extends ChangeNotifier {
