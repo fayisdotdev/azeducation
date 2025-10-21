@@ -1,5 +1,8 @@
 import 'package:azeducation/features/universities_tier/university_model.dart';
+import 'package:azeducation/features/universities_tier/videos/video_class_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class CombinedCourseDetailPage extends StatelessWidget {
   final Course course;
@@ -22,9 +25,10 @@ class CombinedCourseDetailPage extends StatelessWidget {
         child: ListView(
           children: [
             if (courseDetail != null) ...[
-              const Text("Course Details",
-                  style: TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text(
+                "Course Details",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               if (courseDetail!.description != null)
                 Text("Description: ${courseDetail!.description}"),
@@ -46,8 +50,10 @@ class CombinedCourseDetailPage extends StatelessWidget {
               ],
               const Divider(height: 24),
             ],
-            const Text("Subjects",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Subjects",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             if (subjects.isEmpty)
               const Text("No subjects available.")
@@ -75,22 +81,75 @@ class CombinedCourseDetailPage extends StatelessWidget {
   }
 }
 
-class SubjectDetailPage extends StatelessWidget {
+class SubjectDetailPage extends ConsumerWidget {
   final Subject subject;
   const SubjectDetailPage({super.key, required this.subject});
 
   @override
-  Widget build(BuildContext context) {
-    // This page will show subject-level detail (linked from provider)
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch all videos
+    final videos = ref.watch(videoClassProvider);
+
+    // Filter videos for this subject
+    final subjectVideos = videos.maybeWhen(
+      data: (list) =>
+          list.where((v) => v.subjectId == subject.subjectId).toList(),
+      orElse: () => [],
+    );
+
     return Scaffold(
       appBar: AppBar(title: Text(subject.subjectName)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(
-          "Details for ${subject.subjectName} will appear here.",
-          style: const TextStyle(fontSize: 16),
-        ),
+      body: videos.when(
+        data: (_) {
+          if (subjectVideos.isEmpty) {
+            return const Center(
+              child: Text("No videos available for this subject."),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: subjectVideos.length,
+            itemBuilder: (context, index) {
+              final video = subjectVideos[index];
+              final videoId =
+                  YoutubePlayer.convertUrlToId(video.videoUrl) ?? '';
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        video.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text('${video.courseName} • ${video.universityName}'),
+                      const SizedBox(height: 4),
+                      if (video.categoryName != null)
+                        Text('Category: ${video.categoryName}'),
+                      if (videoId.isNotEmpty)
+                        YoutubePlayer(
+                          controller: YoutubePlayerController(
+                            initialVideoId: videoId,
+                            flags: const YoutubePlayerFlags(autoPlay: false),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error loading videos: $e')),
       ),
     );
   }
 }
+
+//cool
