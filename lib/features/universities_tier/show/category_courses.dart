@@ -4,7 +4,7 @@ import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:azeducation/features/universities_tier/university_model.dart';
-
+import 'package:azeducation/features/auth/student/student_signup.dart';
 
 class CoursesByCategoryPage extends ConsumerStatefulWidget {
   const CoursesByCategoryPage({super.key});
@@ -54,16 +54,38 @@ class _CoursesByCategoryPageState extends ConsumerState<CoursesByCategoryPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Courses by Categories"), actions: [
-          IconButton(
-            icon: const Icon(Icons.login),
-            tooltip: "Login",
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-              );
+      appBar: AppBar(title: const Text("Courses by Categories"),  actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'login') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                );
+              } else if (value == 'signup') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const StudentSignupPage()),
+                );
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'login',
+                child: ListTile(
+                  leading: Icon(Icons.login_outlined),
+                  title: Text('Login'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'signup',
+                child: ListTile(
+                  leading: Icon(Icons.person_add_alt_1_outlined),
+                  title: Text('Signup'),
+                ),
+              ),
+            ],
           ),
         ],),
       body: RefreshIndicator(
