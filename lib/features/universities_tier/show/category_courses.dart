@@ -1,3 +1,4 @@
+import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/universities_tier/add/add_courses.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,18 @@ class _CoursesByCategoryPageState extends ConsumerState<CoursesByCategoryPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Courses by Categories")),
+      appBar: AppBar(title: const Text("Courses by Categories"), actions: [
+          IconButton(
+            icon: const Icon(Icons.login),
+            tooltip: "Login",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
+            },
+          ),
+        ],),
       body: RefreshIndicator(
         onRefresh: () => ref.read(dataProvider).fetchAll(forceRefresh: true),
         child: Padding(
