@@ -39,16 +39,16 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ====== Universities =====
-  Future<void> addUniversity(String name) async {
-    await _service.addUniversity(name);
-    await fetchAll(forceRefresh: true);
-  }
+Future<void> addUniversity(String name, List<String> categoryIds) async {
+  await _service.addUniversity(name, categoryIds);
+  await fetchAll(forceRefresh: true);
+}
 
-  Future<void> updateUniversity(String id, String name) async {
-    await _service.updateUniversity(id, name);
-    await fetchAll(forceRefresh: true);
-  }
+
+Future<void> updateUniversity(String id, String name, List<String> categoryIds) async {
+  await _service.updateUniversity(id, name, categoryIds);
+  await fetchAll(forceRefresh: true);
+}
 
   Future<void> deleteUniversity(String id) async {
     await _service.deleteUniversity(id);

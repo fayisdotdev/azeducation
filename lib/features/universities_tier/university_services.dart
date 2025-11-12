@@ -13,16 +13,24 @@ class DatabaseService {
     return res.map((e) => University.fromJson(e)).toList().cast<University>();
   }
 
-  Future<void> addUniversity(String name) async {
-    await supabase.from('universities').insert({'university_name': name});
-  }
+Future<void> addUniversity(String name, List<String> categoryIds) async {
+  await supabase.from('universities').insert({
+    'university_name': name,
+    'category_ids': categoryIds, // store multiple categories
+    'created_at': DateTime.now().toIso8601String(),
+  });
+}
 
-  Future<void> updateUniversity(String id, String newName) async {
-    await supabase
-        .from('universities')
-        .update({'university_name': newName})
-        .eq('university_id', id);
-  }
+Future<void> updateUniversity(String id, String newName, List<String> categoryIds) async {
+  await supabase
+      .from('universities')
+      .update({
+        'university_name': newName,
+        'category_ids': categoryIds, // update multi-categories
+      })
+      .eq('university_id', id);
+}
+
 
   Future<void> deleteUniversity(String id) async {
     await supabase.from('universities').delete().eq('university_id', id);

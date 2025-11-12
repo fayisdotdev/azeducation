@@ -8,24 +8,32 @@ class University {
   final String universityId;
   final String universityName;
   final DateTime createdAt;
+  final List<String> categoryIds; // 🆕 multiple categories
 
   University({
     required this.universityId,
     required this.universityName,
     required this.createdAt,
+    required this.categoryIds,
   });
 
   factory University.fromJson(Map<String, dynamic> json) => University(
-    universityId: json['university_id'],
-    universityName: json['university_name'],
-    createdAt: DateTime.parse(json['created_at']),
-  );
+        universityId: json['university_id'],
+        universityName: json['university_name'],
+        createdAt: DateTime.parse(json['created_at']),
+        categoryIds: (json['category_ids'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
+      );
 
   Map<String, dynamic> toJson() => {
-    'university_id': universityId,
-    'university_name': universityName,
-  };
+        'university_id': universityId,
+        'university_name': universityName,
+        'category_ids': categoryIds, // 🆕 store list
+      };
 }
+
 
 class CourseCategory {
   final String categoryId;
