@@ -5,6 +5,7 @@ import 'package:azeducation/features/universities_tier/add/add_subject.dart';
 import 'package:azeducation/features/universities_tier/add/add_subject_details.dart';
 import 'package:azeducation/features/universities_tier/add/add_university.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
+import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
 import 'package:azeducation/features/universities_tier/videos/video_class_upload.dart';
 import 'package:azeducation/features/universities_tier/videos/view_video_class.dart';
 import 'package:flutter/material.dart';
@@ -126,6 +127,18 @@ class UniversitySession extends StatelessWidget {
                     );
                   },
                   child: const Text("show subject videos"),
+                ),
+                  const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const UniversitiesByCategoryPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("University by Category"),
                 ),
               ],
             ),
