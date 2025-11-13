@@ -2,8 +2,8 @@ import 'package:azeducation/features/auth/admin/add_admin.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
-import 'package:azeducation/features/universities_tier/show/category_courses.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
+import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
 import 'package:azeducation/features/universities_tier/university_session.dart';
 import 'package:azeducation/features/universities_tier/videos/show.dart';
 import 'package:azeducation/providers/auth_provider.dart';
@@ -103,7 +103,7 @@ class HomePage extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const CoursesByCategoryPage(),
+                          builder: (_) => const UniversitiesByCategoryPage(),
                         ),
                       );
                     },
