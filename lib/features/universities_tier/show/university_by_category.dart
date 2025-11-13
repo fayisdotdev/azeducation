@@ -1,8 +1,11 @@
+import 'package:azeducation/features/auth/login_page.dart';
+import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/universities_tier/add/add_courses.dart';
-import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
-import 'package:azeducation/features/universities_tier/university_model.dart';
+import 'package:azeducation/features/universities_tier/show/universities_list_page.dart';
+import 'package:azeducation/features/universities_tier/show/widgets/category_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:azeducation/features/universities_tier/university_model.dart';
 
 class UniversitiesByCategoryPage extends ConsumerStatefulWidget {
   const UniversitiesByCategoryPage({super.key});
@@ -27,12 +30,9 @@ class _UniversitiesByCategoryPageState
     final provider = ref.watch(dataProvider);
 
     if (provider.isLoading && !provider.hasLoaded) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // ===== Group universities by category =====
     final Map<String, List<University>> universitiesByCategory = {};
 
     for (var course in provider.courses) {
@@ -48,8 +48,9 @@ class _UniversitiesByCategoryPageState
 
       if (university.universityId.isNotEmpty) {
         universitiesByCategory.putIfAbsent(categoryId, () => []);
-        if (!universitiesByCategory[categoryId]!
-            .any((u) => u.universityId == university.universityId)) {
+        if (!universitiesByCategory[categoryId]!.any(
+          (u) => u.universityId == university.universityId,
+        )) {
           universitiesByCategory[categoryId]!.add(university);
         }
       }
@@ -72,6 +73,40 @@ class _UniversitiesByCategoryPageState
     return Scaffold(
       appBar: AppBar(
         title: const Text("Universities by Categories"),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'login') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                );
+              } else if (value == 'signup') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const StudentSignupPage()),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'login',
+                child: ListTile(
+                  leading: Icon(Icons.login_outlined),
+                  title: Text('Login'),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'signup',
+                child: ListTile(
+                  leading: Icon(Icons.person_add_alt_1_outlined),
+                  title: Text('Signup'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(dataProvider).fetchAll(forceRefresh: true),
@@ -90,147 +125,24 @@ class _UniversitiesByCategoryPageState
               final categoryName = getCategoryName(categoryId);
               final universities = universitiesByCategory[categoryId]!;
 
-              return Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => UniversitiesListPage(
-                          categoryName: categoryName,
-                          categoryId: categoryId,
-                          universities: universities,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.school_outlined,
-                              size: 40, color: Colors.blue),
-                          const SizedBox(height: 8),
-                          Text(
-                            categoryName,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text("${universities.length} universities"),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// SECOND SCREEN: Grid view of universities under selected category
-class UniversitiesListPage extends ConsumerWidget {
-  final String categoryName;
-  final String categoryId;
-  final List<University> universities;
-
-  const UniversitiesListPage({
-    super.key,
-    required this.categoryName,
-    required this.categoryId,
-    required this.universities,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final provider = ref.watch(dataProvider);
-
-    return Scaffold(
-      appBar: AppBar(title: Text(categoryName)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          itemCount: universities.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1,
-          ),
-          itemBuilder: (context, index) {
-            final university = universities[index];
-            final courseCount = provider.courses
-                .where((c) =>
-                    c.universityId == university.universityId &&
-                    (c.categoryId ?? 'uncategorized') == categoryId)
-                .length;
-
-            return Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: InkWell(
+              return CategoryCard(
+                categoryName: categoryName,
+                universityCount: universities.length,
                 onTap: () {
-                  final courses = provider.courses
-                      .where((c) =>
-                          c.universityId == university.universityId &&
-                          (c.categoryId ?? 'uncategorized') == categoryId)
-                      .toList();
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => CoursesGridPage(
-                        title:
-                            "${university.universityName} - $categoryName",
-                        courses: courses,
+                      builder: (_) => UniversitiesListPage(
+                        categoryName: categoryName,
+                        categoryId: categoryId,
+                        universities: universities,
                       ),
                     ),
                   );
                 },
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.account_balance_outlined,
-                            size: 40, color: Colors.blue),
-                        const SizedBox(height: 8),
-                        Text(
-                          university.universityName,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text("$courseCount courses",
-                            style: const TextStyle(fontSize: 13)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

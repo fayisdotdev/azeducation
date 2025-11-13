@@ -28,9 +28,7 @@ class _CoursesByCategoryPageState extends ConsumerState<CoursesByCategoryPage> {
     final provider = ref.watch(dataProvider);
 
     if (provider.isLoading && !provider.hasLoaded) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final Map<String, List<Course>> groupedCourses = {};
@@ -42,19 +40,21 @@ class _CoursesByCategoryPageState extends ConsumerState<CoursesByCategoryPage> {
     String getCategoryName(String id) {
       if (id == 'uncategorized') return 'Uncategorized';
       return provider.categories
-              .firstWhere(
-                (c) => c.categoryId == id,
-                orElse: () => CourseCategory(
-                  categoryId: id,
-                  categoryName: 'Unknown',
-                  createdAt: DateTime.now(),
-                ),
-              )
-              .categoryName;
+          .firstWhere(
+            (c) => c.categoryId == id,
+            orElse: () => CourseCategory(
+              categoryId: id,
+              categoryName: 'Unknown',
+              createdAt: DateTime.now(),
+            ),
+          )
+          .categoryName;
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Courses by Categories"),  actions: [
+      appBar: AppBar(
+        title: const Text("Courses by Categories"),
+        actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (value) {
@@ -87,7 +87,8 @@ class _CoursesByCategoryPageState extends ConsumerState<CoursesByCategoryPage> {
               ),
             ],
           ),
-        ],),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(dataProvider).fetchAll(forceRefresh: true),
         child: Padding(
@@ -128,8 +129,11 @@ class _CoursesByCategoryPageState extends ConsumerState<CoursesByCategoryPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.category_outlined,
-                              size: 40, color: Colors.blue),
+                          const Icon(
+                            Icons.category_outlined,
+                            size: 40,
+                            color: Colors.blue,
+                          ),
                           const SizedBox(height: 8),
                           Text(
                             categoryName,
