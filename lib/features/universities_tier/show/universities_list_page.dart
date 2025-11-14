@@ -48,23 +48,23 @@ class UniversitiesListPage extends ConsumerWidget {
             return UniversityCard(
               universityName: university.universityName,
               courseCount: courseCount,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CoursesGridPage(
-                      title: university.universityName,
-                      courses: provider.courses
-                          .where(
-                            (c) =>
-                                c.universityId == university.universityId &&
-                                (c.categoryId ?? 'uncategorized') == categoryId,
-                          )
-                          .toList(),
-                    ),
-                  ),
-                );
-              },
+             onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => CoursesGridPage(
+        title: university.universityName,
+        courses: provider.courses
+            .where(
+              (c) =>
+                  c.universityId == university.universityId &&
+                  (c.categoryId ?? 'uncategorized') == categoryId,
+            )
+            .toList(),
+      ),
+    ),
+  );
+},
             );
           },
         ),

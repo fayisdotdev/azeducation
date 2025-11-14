@@ -29,18 +29,6 @@ class UniversitySession extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const AddUniversityPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("Add University"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
                         builder: (_) => const CourseCategoryPage(),
                       ),
                     );
@@ -48,6 +36,19 @@ class UniversitySession extends StatelessWidget {
                   child: const Text("Add Category"),
                 ),
                 const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AddUniversityPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Add University"),
+                ),
+                const SizedBox(height: 20),
+
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -128,7 +129,7 @@ class UniversitySession extends StatelessWidget {
                   },
                   child: const Text("show subject videos"),
                 ),
-                  const SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
