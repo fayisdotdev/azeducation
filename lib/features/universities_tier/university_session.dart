@@ -1,3 +1,4 @@
+import 'package:azeducation/features/newUniversity/quick_university_add.dart';
 import 'package:azeducation/features/universities_tier/add/add_course_category.dart';
 import 'package:azeducation/features/universities_tier/add/add_course_details.dart';
 import 'package:azeducation/features/universities_tier/add/add_courses.dart';
@@ -140,6 +141,18 @@ class UniversitySession extends StatelessWidget {
                     );
                   },
                   child: const Text("University by Category"),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const QuickUniversityAddPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("New University Quick Add"),
                 ),
               ],
             ),
