@@ -1,10 +1,11 @@
 import 'package:azeducation/features/universities_tier/university_model.dart';
+import 'package:azeducation/features/auth/auth_guard_service.dart';
 import 'package:azeducation/features/universities_tier/videos/video_class_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class CombinedCourseDetailPage extends StatelessWidget {
+class CombinedCourseDetailPage extends ConsumerWidget {
   final Course course;
   final List<Subject> subjects;
   final List<CourseDetail> courseDetails; // both course & subject-level
@@ -17,7 +18,7 @@ class CombinedCourseDetailPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // course-level detail (subjectId == null)
     CourseDetail? courseDetail;
     try {
@@ -37,8 +38,10 @@ class CombinedCourseDetailPage extends StatelessWidget {
           children: [
             // ----- Course-level Details -----
             if (courseDetail != null) ...[
-              const Text("Course Details",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const Text(
+                "Course Details",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               if (courseDetail.description != null)
                 Text("Description: ${courseDetail.description}"),
@@ -61,51 +64,55 @@ class CombinedCourseDetailPage extends StatelessWidget {
             ],
 
             // ----- Subjects -----
-            const Text("Subjects",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Subjects",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             if (subjects.isEmpty)
               const Text("No subjects available.")
             else
-              ...subjects.map(
-                (subject) {
-                  // subject-specific detail or fallback to courseDetail
-                  CourseDetail? detail;
-                  try {
-                    detail = courseDetails.firstWhere(
-                      (d) => d.subjectId == subject.subjectId,
-                    );
-                  } catch (_) {
-                    detail = courseDetail;
-                  }
-
-                  return Card(
-                    child: ListTile(
-                      title: Text(subject.subjectName),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SubjectDetailPage(
-                              subject: subject,
-                              courseDetail: detail,
-                              allCourseDetails: courseDetails,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+              ...subjects.map((subject) {
+                // subject-specific detail or fallback to courseDetail
+                CourseDetail? detail;
+                try {
+                  detail = courseDetails.firstWhere(
+                    (d) => d.subjectId == subject.subjectId,
                   );
-                },
-              ),
+                } catch (_) {
+                  detail = courseDetail;
+                }
+
+                return Card(
+                  child: ListTile(
+                    title: Text(subject.subjectName),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () async {
+                      final allowed = await AuthGuardService.checkLoggedIn(
+                        context,
+                        ref,
+                      );
+                      if (!allowed) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => SubjectDetailPage(
+                            subject: subject,
+                            courseDetail: detail,
+                            allCourseDetails: courseDetails,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }),
           ],
         ),
       ),
     );
   }
 }
-
 
 // ----- SubjectDetailPage -----
 class SubjectDetailPage extends ConsumerWidget {
@@ -148,25 +155,32 @@ class SubjectDetailPage extends ConsumerWidget {
         child: ListView(
           children: [
             // ----- Subject Info -----
-            const Text("Subject Details",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              "Subject Details",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Text("Name: ${subject.subjectName}"),
             const SizedBox(height: 16),
 
             // ----- Details from course_details -----
             if (mergedDetail != null) ...[
-              const Text("Details",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Details",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               if (mergedDetail.description != null)
                 Text("Description: ${mergedDetail.description}"),
               if (mergedDetail.duration != null)
                 Text("Duration: ${mergedDetail.duration}"),
               if (mergedDetail.fees != null) Text("Fees: ${mergedDetail.fees}"),
-              if (mergedDetail.note1 != null) Text("Note1: ${mergedDetail.note1}"),
-              if (mergedDetail.note2 != null) Text("Note2: ${mergedDetail.note2}"),
-              if (mergedDetail.note3 != null) Text("Note3: ${mergedDetail.note3}"),
+              if (mergedDetail.note1 != null)
+                Text("Note1: ${mergedDetail.note1}"),
+              if (mergedDetail.note2 != null)
+                Text("Note2: ${mergedDetail.note2}"),
+              if (mergedDetail.note3 != null)
+                Text("Note3: ${mergedDetail.note3}"),
               if (mergedDetail.syllabus != null)
                 Text("Syllabus: ${mergedDetail.syllabus}"),
               if (mergedDetail.imageUrl != null) ...[
@@ -177,8 +191,10 @@ class SubjectDetailPage extends ConsumerWidget {
             ],
 
             // ----- Videos -----
-            const Text("Videos",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Videos",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             videos.when(
               data: (_) {
@@ -197,11 +213,16 @@ class SubjectDetailPage extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(video.title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
+                            Text(
+                              video.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Text('${video.courseName} • ${video.universityName}'),
+                            Text(
+                              '${video.courseName} • ${video.universityName}',
+                            ),
                             const SizedBox(height: 4),
                             if (video.categoryName != null)
                               Text('Category: ${video.categoryName}'),
@@ -209,8 +230,9 @@ class SubjectDetailPage extends ConsumerWidget {
                               YoutubePlayer(
                                 controller: YoutubePlayerController(
                                   initialVideoId: videoId,
-                                  flags:
-                                      const YoutubePlayerFlags(autoPlay: false),
+                                  flags: const YoutubePlayerFlags(
+                                    autoPlay: false,
+                                  ),
                                 ),
                               ),
                           ],
@@ -220,8 +242,7 @@ class SubjectDetailPage extends ConsumerWidget {
                   }).toList(),
                 );
               },
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Error loading videos: $e')),
             ),
           ],
