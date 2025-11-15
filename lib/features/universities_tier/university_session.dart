@@ -1,14 +1,7 @@
 import 'package:azeducation/features/newUniversity/quick_university_add.dart';
-import 'package:azeducation/features/universities_tier/add/add_course_category.dart';
-import 'package:azeducation/features/universities_tier/add/add_course_details.dart';
-import 'package:azeducation/features/universities_tier/add/add_courses.dart';
-import 'package:azeducation/features/universities_tier/add/add_subject.dart';
-import 'package:azeducation/features/universities_tier/add/add_subject_details.dart';
-import 'package:azeducation/features/universities_tier/add/add_university.dart';
+import 'package:azeducation/features/universities_tier/add/addsession.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
-import 'package:azeducation/features/universities_tier/videos/video_class_upload.dart';
-import 'package:azeducation/features/universities_tier/videos/view_video_class.dart';
 import 'package:flutter/material.dart';
 
 class UniversitySession extends StatelessWidget {
@@ -17,7 +10,7 @@ class UniversitySession extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("University Session")),
+      appBar: AppBar(title: const Text("University Admin Session")),
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
@@ -29,71 +22,28 @@ class UniversitySession extends StatelessWidget {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const CourseCategoryPage(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const AddSession()),
                     );
                   },
-                  child: const Text("Add Category"),
+                  child: const Text("Add Session"),
                 ),
+
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const AddUniversityPage(),
+                        builder: (_) => const QuickUniversityAddPage(),
                       ),
                     );
                   },
-                  child: const Text("Add University"),
+                  child: const Text(
+                    "Quick Add University, Category, Course, Subject",
+                  ),
                 ),
                 const SizedBox(height: 20),
 
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AddCoursePage()),
-                    );
-                  },
-                  child: const Text("Add courses"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddCourseDetailPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("Add Course Details"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AddSubjectPage()),
-                    );
-                  },
-                  child: const Text("Add subjects"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const AddSubjectDetailPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("Add Subject details"),
-                ),
-                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -105,32 +55,8 @@ class UniversitySession extends StatelessWidget {
                   },
                   child: const Text("Universities and Courses"),
                 ),
+                const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const UploadVideoClassPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("upload subject videos"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const VideoClassStreamPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("show subject videos"),
-                ),
-                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -141,18 +67,6 @@ class UniversitySession extends StatelessWidget {
                     );
                   },
                   child: const Text("University by Category"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const QuickUniversityAddPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("New University Quick Add"),
                 ),
               ],
             ),
