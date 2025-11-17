@@ -49,30 +49,45 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-        Text(
-          "AZ Education",
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
+ @override
+Widget build(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final textTheme = Theme.of(context).textTheme;
+  return Scaffold(
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Icon(Icons.school_rounded, size: 48, color: colorScheme.primary),
           ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          "v.1.16",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.normal,
+          const SizedBox(height: 28),
+          Text(
+            "AZ Education",
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 28,
+              color: colorScheme.primary,
+              letterSpacing: 1.2,
+            ),
           ),
-        ),
-          ],
-        ),
+          const SizedBox(height: 16),
+          Text(
+            "Empowering Learning for All",
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onBackground.withOpacity(0.7)),
+          ),
+          const SizedBox(height: 36),
+          const CircularProgressIndicator(),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

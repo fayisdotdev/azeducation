@@ -40,13 +40,18 @@ class DataProvider extends ChangeNotifier {
   }
 
   // ====== Universities =====
-  Future<void> addUniversity(String name) async {
-    await _service.addUniversity(name);
+
+  Future<void> addUniversity(String name, {String? classifications}) async {
+    await _service.addUniversity(name, classifications: classifications);
     await fetchAll(forceRefresh: true);
   }
 
-  Future<void> updateUniversity(String id, String name) async {
-    await _service.updateUniversity(id, name);
+  Future<void> updateUniversity(
+    String id,
+    String name, {
+    String? classifications,
+  }) async {
+    await _service.updateUniversity(id, name, classifications: classifications);
     await fetchAll(forceRefresh: true);
   }
 
@@ -56,12 +61,20 @@ class DataProvider extends ChangeNotifier {
   }
 
   // ====== Courses =====
-  Future<void> addCourse(String uniId, String name, {String? categoryId}) async {
+  Future<void> addCourse(
+    String uniId,
+    String name, {
+    String? categoryId,
+  }) async {
     await _service.addCourse(uniId, name, categoryId: categoryId);
     await fetchAll(forceRefresh: true);
   }
 
-  Future<void> updateCourse(String id, String name, {String? categoryId}) async {
+  Future<void> updateCourse(
+    String id,
+    String name, {
+    String? categoryId,
+  }) async {
     await _service.updateCourse(id, name, categoryId: categoryId);
     await fetchAll(forceRefresh: true);
   }

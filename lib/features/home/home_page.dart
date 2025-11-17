@@ -2,6 +2,7 @@ import 'package:azeducation/features/auth/admin/add_admin.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
+import 'package:azeducation/features/universities_tier/admin/admin_featured_universities.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
 import 'package:azeducation/features/universities_tier/university_session.dart';
@@ -54,7 +55,7 @@ class HomePage extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 5),
                 Text(
                   "Role: ${user.isAdmin
                       ? "Admin"
@@ -66,7 +67,7 @@ class HomePage extends ConsumerWidget {
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
                 if (user.isAdmin || user.isTeacher)
                   ElevatedButton(
                     onPressed: () {
@@ -160,6 +161,17 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Add Admin"),
                   ),
+                // const SizedBox(height: 12),
+                // if (user.isAdmin)
+                //   ElevatedButton(
+                //     onPressed: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute(builder: (_) => const AdminFeaturedUniversitiesPage()),
+                //       );
+                //     },
+                //     child: const Text("Admin Features"),
+                //   ),
               ],
             );
           },

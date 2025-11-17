@@ -32,15 +32,18 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCourseId == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Please select a course")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select a course")));
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      await ref.read(authServiceProvider).signUpUser(
+      await ref
+          .read(authServiceProvider)
+          .signUpUser(
             name: _nameController.text.trim(),
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
@@ -60,8 +63,9 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Signup failed: $e")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Signup failed: $e")));
       }
     } finally {
       setState(() => _loading = false);
@@ -70,126 +74,150 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final provider = ref.watch(dataProvider);
-
     return Scaffold(
       appBar: AppBar(title: const Text("Student Signup")),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : LayoutBuilder(
               builder: (context, constraints) {
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
+                return Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
                     ),
-                    child: IntrinsicHeight(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: 420,
+                        minWidth: constraints.maxWidth < 500
+                            ? constraints.maxWidth
+                            : 320,
+                      ),
                       child: Card(
                         elevation: 4,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(18),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(24.0),
+                          padding: const EdgeInsets.all(28),
                           child: Form(
                             key: _formKey,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const Text(
-                                  "Create Student Account 🎓",
-                                  style: TextStyle(
-                                    fontSize: 20,
+                                Text(
+                                  "Create Student Account",
+                                  style: textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 24),
-                                TextFormField(
-                                  controller: _nameController,
-                                  decoration: const InputDecoration(
-                                    labelText: "Full Name",
-                                    prefixIcon: Icon(Icons.person_outline),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (val) =>
-                                      val!.isEmpty ? "Enter name" : null,
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _emailController,
-                                  decoration: const InputDecoration(
-                                    labelText: "Email",
-                                    prefixIcon: Icon(Icons.email_outlined),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (val) =>
-                                      val!.isEmpty ? "Enter email" : null,
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _passwordController,
-                                  obscureText: true,
-                                  decoration: const InputDecoration(
-                                    labelText: "Password",
-                                    prefixIcon: Icon(Icons.lock_outline),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (val) =>
-                                      val!.isEmpty ? "Enter password" : null,
-                                ),
-                                const SizedBox(height: 16),
-                                TextFormField(
-                                  controller: _mobileController,
-                                  decoration: const InputDecoration(
-                                    labelText: "Mobile Number",
-                                    prefixIcon: Icon(Icons.phone_outlined),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (val) =>
-                                      val!.isEmpty ? "Enter mobile" : null,
-                                ),
-                                const SizedBox(height: 16),
-                                // 🔽 FIXED DROPDOWN OVERFLOW
-                                DropdownButtonHideUnderline(
-                                  child: DropdownButtonFormField<String>(
-                                    isExpanded: true,
-                                    value: _selectedCourseId,
-                                    hint: const Text("Select Course"),
-                                    items: provider.courses.map((course) {
-                                      final university =
-                                          provider.universities.firstWhere(
-                                        (u) =>
-                                            u.universityId ==
-                                            course.universityId,
-                                      );
-                                      return DropdownMenuItem(
-                                        value: course.courseId,
-                                        child: Text(
-                                          "${course.courseName} (${university.universityName})",
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (val) =>
-                                        setState(() => _selectedCourseId = val),
-                                    decoration: const InputDecoration(
-                                      labelText: "Course (University)",
-                                      prefixIcon: Icon(Icons.school_outlined),
-                                      border: OutlineInputBorder(),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "Sign up to access courses and resources",
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onBackground.withOpacity(
+                                      0.7,
                                     ),
                                   ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 24),
-                                _loading
-                                    ? const CircularProgressIndicator()
-                                    : SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed: _signupStudent,
-                                          child: const Text("Sign Up"),
-                                        ),
-                                      ),
+                                const SizedBox(height: 28),
+                                ...[
+                                  TextFormField(
+                                    controller: _nameController,
+                                    decoration: const InputDecoration(
+                                      labelText: "Full Name",
+                                      prefixIcon: Icon(Icons.person_outline),
+                                    ),
+                                    validator: (v) => v == null || v.isEmpty
+                                        ? "Enter your name"
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 18),
+                                  TextFormField(
+                                    controller: _emailController,
+                                    keyboardType: TextInputType.emailAddress,
+                                    decoration: const InputDecoration(
+                                      labelText: "Email",
+                                      prefixIcon: Icon(Icons.email_outlined),
+                                    ),
+                                    validator: (v) => v == null || v.isEmpty
+                                        ? "Enter your email"
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 18),
+                                  TextFormField(
+                                    controller: _passwordController,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(
+                                      labelText: "Password",
+                                      prefixIcon: Icon(Icons.lock_outline),
+                                    ),
+                                    validator: (v) => v == null || v.isEmpty
+                                        ? "Enter your password"
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 18),
+                                  TextFormField(
+                                    controller: _mobileController,
+                                    keyboardType: TextInputType.phone,
+                                    decoration: const InputDecoration(
+                                      labelText: "Mobile Number",
+                                      prefixIcon: Icon(Icons.phone_outlined),
+                                    ),
+                                    validator: (v) => v == null || v.isEmpty
+                                        ? "Enter your mobile number"
+                                        : null,
+                                  ),
+                                  const SizedBox(height: 18),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedCourseId,
+                                    isExpanded: true,
+                                    items: provider.courses
+                                        .map(
+                                          (c) => DropdownMenuItem(
+                                            value: c.courseId,
+                                            child: Text(
+                                              c.courseName,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                    onChanged: _loading
+                                        ? null
+                                        : (v) => setState(
+                                            () => _selectedCourseId = v,
+                                          ),
+                                    decoration: const InputDecoration(
+                                      labelText: "Select Course",
+                                      prefixIcon: Icon(Icons.school_outlined),
+                                    ),
+                                    validator: (v) =>
+                                        v == null ? "Select a course" : null,
+                                  ),
+                                  const SizedBox(height: 28),
+                                  ElevatedButton(
+                                    onPressed: _loading ? null : _signupStudent,
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: const Size.fromHeight(48),
+                                    ),
+                                    child: _loading
+                                        ? const SizedBox(
+                                            height: 22,
+                                            width: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Text("Sign Up"),
+                                  ),
+                                ],
                               ],
                             ),
                           ),

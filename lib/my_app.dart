@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/auth/splash_page.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:flutter_animate/flutter_animate.dart';
+import 'styles/app_theme.dart';
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -12,11 +12,15 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'AZ Education',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        primarySwatch: Colors.red,
-      ),
+      theme: AppTheme.themeData,
       home: const SplashPage(),
+      builder: (context, child) {
+        // Animate page transitions globally
+        return Animate(
+          effects: const [FadeEffect(duration: Duration(milliseconds: 300))],
+          child: child!,
+        );
+      },
     );
   }
 }

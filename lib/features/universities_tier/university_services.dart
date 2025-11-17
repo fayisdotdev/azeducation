@@ -2,10 +2,11 @@
 
 import 'package:azeducation/features/universities_tier/university_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 final supabase = Supabase.instance.client;
 
 class DatabaseService {
-    // final supabase = Supabase.instance.client;
+  // final supabase = Supabase.instance.client;
 
   // ===== UNIVERSITIES =====
   Future<List<University>> getUniversities() async {
@@ -13,14 +14,24 @@ class DatabaseService {
     return res.map((e) => University.fromJson(e)).toList().cast<University>();
   }
 
-  Future<void> addUniversity(String name) async {
-    await supabase.from('universities').insert({'university_name': name});
+  Future<void> addUniversity(String name, {String? classifications}) async {
+    await supabase.from('universities').insert({
+      'university_name': name,
+      'classifications': classifications,
+    });
   }
 
-  Future<void> updateUniversity(String id, String newName) async {
+  Future<void> updateUniversity(
+    String id,
+    String newName, {
+    String? classifications,
+  }) async {
     await supabase
         .from('universities')
-        .update({'university_name': newName})
+        .update({
+          'university_name': newName,
+          if (classifications != null) 'classifications': classifications,
+        })
         .eq('university_id', id);
   }
 
@@ -28,10 +39,13 @@ class DatabaseService {
     await supabase.from('universities').delete().eq('university_id', id);
   }
 
-// ===== COURSE CATEGORIES =====
+  // ===== COURSE CATEGORIES =====
   Future<List<CourseCategory>> getCourseCategories() async {
     final res = await supabase.from('course_categories').select();
-    return res.map((e) => CourseCategory.fromJson(e)).toList().cast<CourseCategory>();
+    return res
+        .map((e) => CourseCategory.fromJson(e))
+        .toList()
+        .cast<CourseCategory>();
   }
 
   Future<void> addCourseCategory(String name) async {
@@ -55,7 +69,11 @@ class DatabaseService {
     return res.map((e) => Course.fromJson(e)).toList().cast<Course>();
   }
 
-  Future<void> addCourse(String universityId, String name, {String? categoryId}) async {
+  Future<void> addCourse(
+    String universityId,
+    String name, {
+    String? categoryId,
+  }) async {
     await supabase.from('courses').insert({
       'university_id': universityId,
       'course_name': name,
@@ -63,20 +81,20 @@ class DatabaseService {
     });
   }
 
-  Future<void> updateCourse(String id, String name, {String? categoryId}) async {
+  Future<void> updateCourse(
+    String id,
+    String name, {
+    String? categoryId,
+  }) async {
     await supabase
         .from('courses')
-        .update({
-          'course_name': name,
-          'category_id': categoryId,
-        })
+        .update({'course_name': name, 'category_id': categoryId})
         .eq('course_id', id);
   }
 
   Future<void> deleteCourse(String id) async {
     await supabase.from('courses').delete().eq('course_id', id);
   }
-
 
   // ===== SUBJECTS =====
   Future<List<Subject>> getSubjects() async {
@@ -85,7 +103,10 @@ class DatabaseService {
   }
 
   Future<void> addSubject(
-      String courseId, String universityId, String name) async {
+    String courseId,
+    String universityId,
+    String name,
+  ) async {
     await supabase.from('subjects').insert({
       'course_id': courseId,
       'university_id': universityId,
@@ -107,7 +128,10 @@ class DatabaseService {
   // ===== COURSE DETAILS =====
   Future<List<CourseDetail>> getCourseDetails() async {
     final res = await supabase.from('course_details').select();
-    return res.map((e) => CourseDetail.fromJson(e)).toList().cast<CourseDetail>();
+    return res
+        .map((e) => CourseDetail.fromJson(e))
+        .toList()
+        .cast<CourseDetail>();
   }
 
   Future<void> addCourseDetail(CourseDetail detail) async {
@@ -121,6 +145,4 @@ class DatabaseService {
   Future<void> deleteCourseDetail(String id) async {
     await supabase.from('course_details').delete().eq('detail_id', id);
   }
-
-  
 }

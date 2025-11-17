@@ -7,23 +7,27 @@ const uuid = Uuid();
 class University {
   final String universityId;
   final String universityName;
+  final String? classifications;
   final DateTime createdAt;
 
   University({
     required this.universityId,
     required this.universityName,
+    this.classifications,
     required this.createdAt,
   });
 
   factory University.fromJson(Map<String, dynamic> json) => University(
     universityId: json['university_id'],
     universityName: json['university_name'],
+    classifications: json['classifications'],
     createdAt: DateTime.parse(json['created_at']),
   );
 
   Map<String, dynamic> toJson() => {
     'university_id': universityId,
     'university_name': universityName,
+    'classifications': classifications,
   };
 }
 
