@@ -32,15 +32,18 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCourseId == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Please select a course")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select a course")));
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      await ref.read(authServiceProvider).signUpUser(
+      await ref
+          .read(authServiceProvider)
+          .signUpUser(
             name: _nameController.text.trim(),
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
@@ -60,8 +63,9 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Signup failed: $e")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Signup failed: $e")));
       }
     } finally {
       setState(() => _loading = false);
@@ -157,12 +161,12 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
                                     value: _selectedCourseId,
                                     hint: const Text("Select Course"),
                                     items: provider.courses.map((course) {
-                                      final university =
-                                          provider.universities.firstWhere(
-                                        (u) =>
-                                            u.universityId ==
-                                            course.universityId,
-                                      );
+                                      final university = provider.universities
+                                          .firstWhere(
+                                            (u) =>
+                                                u.universityId ==
+                                                course.universityId,
+                                          );
                                       return DropdownMenuItem(
                                         value: course.courseId,
                                         child: Text(
