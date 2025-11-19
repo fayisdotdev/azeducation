@@ -26,6 +26,7 @@ class HomePage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
             onPressed: () async {
               await auth.signOut();
               if (context.mounted) {
@@ -37,40 +38,94 @@ class HomePage extends ConsumerWidget {
             },
           ),
         ],
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
       ),
-      body: Center(
-        child: userProfileAsync.when(
-          data: (user) {
-            if (user == null) {
-              return const Text("No user data found.");
-            }
+      body: userProfileAsync.when(
+        data: (user) {
+          if (user == null) {
+            return const Center(child: Text("No user data found."));
+          }
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Logged in as: ${user.email}",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+          return ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            children: [
+              // User info card
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 24,
+                    horizontal: 16,
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        child: Text(
+                          user.email.isNotEmpty
+                              ? user.email[0].toUpperCase()
+                              : '?',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 18),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.email,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Role: ${user.isAdmin
+                                  ? "Admin"
+                                  : user.isTeacher
+                                  ? "Teacher"
+                                  : "Student"}",
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontStyle: FontStyle.italic,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer
+                                    .withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  "Role: ${user.isAdmin
-                      ? "Admin"
-                      : user.isTeacher
-                      ? "Teacher"
-                      : "Student"}",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: 12),
+              ),
+              const SizedBox(height: 28),
+
+              // Animated action buttons
+              ...[
                 if (user.isAdmin || user.isTeacher)
-                  ElevatedButton(
-                    onPressed: () {
+                  _HomeActionButton(
+                    icon: Icons.admin_panel_settings,
+                    label: "Admin University Session",
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -78,13 +133,12 @@ class HomePage extends ConsumerWidget {
                         ),
                       );
                     },
-                    child: const Text("Admin University Session"),
                   ),
-                const SizedBox(height: 12),
-
                 if (user.isTeacher || user.isStudent)
-                  ElevatedButton(
-                    onPressed: () {
+                  _HomeActionButton(
+                    icon: Icons.school,
+                    label: "Universities and Courses",
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -93,14 +147,12 @@ class HomePage extends ConsumerWidget {
                         ),
                       );
                     },
-                    child: const Text("Universities and Courses"),
                   ),
-                const SizedBox(height: 12),
                 if (user.isAdmin || user.isTeacher || user.isStudent)
-                  ElevatedButton(
-                    // icon: const Icon(Icons.add),
-                    child: const Text('View By Category'),
-                    onPressed: () {
+                  _HomeActionButton(
+                    icon: Icons.category,
+                    label: "View By Category",
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -109,12 +161,11 @@ class HomePage extends ConsumerWidget {
                       );
                     },
                   ),
-
-                const SizedBox(height: 12),
-
                 if (user.isAdmin || user.isTeacher || user.isStudent)
-                  ElevatedButton(
-                    onPressed: () {
+                  _HomeActionButton(
+                    icon: Icons.video_library,
+                    label: "Recorded Classes",
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -122,12 +173,12 @@ class HomePage extends ConsumerWidget {
                         ),
                       );
                     },
-                    child: const Text("Recorded Classes"),
                   ),
-                const SizedBox(height: 12),
                 if (user.isTeacher)
-                  ElevatedButton(
-                    onPressed: () {
+                  _HomeActionButton(
+                    icon: Icons.person_add_alt_1,
+                    label: "Student Signup",
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -135,12 +186,12 @@ class HomePage extends ConsumerWidget {
                         ),
                       );
                     },
-                    child: const Text("Student Signup"),
                   ),
-                const SizedBox(height: 12),
                 if (user.isAdmin)
-                  ElevatedButton(
-                    onPressed: () {
+                  _HomeActionButton(
+                    icon: Icons.person_add,
+                    label: "Add Teacher",
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -148,35 +199,82 @@ class HomePage extends ConsumerWidget {
                         ),
                       );
                     },
-                    child: const Text("Add Teacher"),
                   ),
-                const SizedBox(height: 12),
                 if (user.isAdmin)
-                  ElevatedButton(
-                    onPressed: () {
+                  _HomeActionButton(
+                    icon: Icons.admin_panel_settings_outlined,
+                    label: "Add Admin",
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const AddAdminPage()),
                       );
                     },
-                    child: const Text("Add Admin"),
                   ),
-                // const SizedBox(height: 12),
-                // if (user.isAdmin)
-                //   ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(builder: (_) => const AdminFeaturedUniversitiesPage()),
-                //       );
-                //     },
-                //     child: const Text("Admin Features"),
-                //   ),
-              ],
-            );
-          },
-          loading: () => const CircularProgressIndicator(),
-          error: (err, _) => Text("Error loading user: $err"),
+                // Uncomment if you want admin features button
+                if (user.isAdmin)
+                  _HomeActionButton(
+                    icon: Icons.star,
+                    label: "Admin Features",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AdminFeaturedUniversitiesPage()),
+                      );
+                    },
+                  ),
+              ].expand((w) => [w, const SizedBox(height: 16)]).toList(),
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(child: Text("Error loading user: $err")),
+      ),
+    );
+  }
+}
+
+class _HomeActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _HomeActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 28,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
+            ],
+          ),
         ),
       ),
     );

@@ -85,6 +85,11 @@ Widget build(BuildContext context) {
           ),
           const SizedBox(height: 36),
           const CircularProgressIndicator(),
+           const SizedBox(height: 80),
+          Text(
+            "V 1.17",
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onBackground.withOpacity(0.7)),
+          ),
         ],
       ),
     ),
