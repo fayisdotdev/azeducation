@@ -1,6 +1,8 @@
 import 'package:azeducation/features/auth/student/student_signup.dart';
-import 'package:azeducation/features/home/home_page.dart';
+import 'package:azeducation/features/home/home_student.dart';
 import 'package:azeducation/providers/auth_provider.dart';
+import 'package:azeducation/providers/user_provider.dart';
+import 'package:azeducation/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,10 +27,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         _passwordController.text.trim(),
       );
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
+        final UserModel? userProfile = await ref.read(
+          currentUserProfileProvider.future,
         );
+        if (!mounted) return;
+        if (userProfile == null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeStudentPage()),
+          );
+          return;
+        }
+        if (userProfile.isAdmin) {
+          Navigator.pushReplacementNamed(context, '/home_admin');
+        } else if (userProfile.isTeacher) {
+          Navigator.pushReplacementNamed(context, '/home_teacher');
+        } else {
+          Navigator.pushReplacementNamed(context, '/home_student');
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(

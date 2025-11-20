@@ -1,5 +1,7 @@
 import 'dart:async';
-import 'package:azeducation/features/home/home_page.dart';
+import 'package:azeducation/features/home/home_student.dart';
+import 'package:azeducation/providers/user_provider.dart';
+import 'package:azeducation/models/user_model.dart';
 import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -21,21 +23,39 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
     // Show splash for at least 2 seconds
     Timer(const Duration(seconds: 2), () {
-      // Listen once to auth state after splash
-      _authSub = ref.read(authServiceProvider).authStateChanges.listen((state) {
+      _authSub = ref.read(authServiceProvider).authStateChanges.listen((
+        state,
+      ) async {
         final user = state.session?.user;
 
         if (!mounted) return;
 
         if (user != null) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomePage()),
+          // Fetch full user profile to determine role
+          final UserModel? userProfile = await ref.read(
+            currentUserProfileProvider.future,
           );
+          if (!mounted) return;
+          if (userProfile == null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeStudentPage()),
+            );
+            return;
+          }
+          if (userProfile.isAdmin) {
+            Navigator.pushReplacementNamed(context, '/home_admin');
+          } else if (userProfile.isTeacher) {
+            Navigator.pushReplacementNamed(context, '/home_teacher');
+          } else {
+            Navigator.pushReplacementNamed(context, '/home_student');
+          }
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const UniversitiesByCategoryPage()),
+            MaterialPageRoute(
+              builder: (_) => const UniversitiesByCategoryPage(),
+            ),
           );
         }
       });
@@ -49,50 +69,58 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 
   @override
- @override
-Widget build(BuildContext context) {
-  final colorScheme = Theme.of(context).colorScheme;
-  final textTheme = Theme.of(context).textTheme;
-  return Scaffold(
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(24),
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Icon(
+                Icons.school_rounded,
+                size: 48,
+                color: colorScheme.primary,
+              ),
             ),
-            child: Icon(Icons.school_rounded, size: 48, color: colorScheme.primary),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            "AZ Education",
-            style: textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 28,
-              color: colorScheme.primary,
-              letterSpacing: 1.2,
+            const SizedBox(height: 28),
+            Text(
+              "AZ Education",
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 28,
+                color: colorScheme.primary,
+                letterSpacing: 1.2,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            "Empowering Learning for All",
-            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onBackground.withOpacity(0.7)),
-          ),
-          const SizedBox(height: 36),
-          const CircularProgressIndicator(),
-           const SizedBox(height: 80),
-          Text(
-            "V 1.17",
-            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onBackground.withOpacity(0.7)),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(
+              "Empowering Learning for All",
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onBackground.withOpacity(0.7),
+              ),
+            ),
+            const SizedBox(height: 36),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 80),
+            Text(
+              "V 1.17",
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onBackground.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
