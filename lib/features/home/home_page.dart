@@ -161,17 +161,17 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Add Admin"),
                   ),
-                // const SizedBox(height: 12),
-                // if (user.isAdmin)
-                //   ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(builder: (_) => const AdminFeaturedUniversitiesPage()),
-                //       );
-                //     },
-                //     child: const Text("Admin Features"),
-                //   ),
+                const SizedBox(height: 12),
+                if (user.isAdmin)
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AdminFeaturedUniversitiesPage()),
+                      );
+                    },
+                    child: const Text("Admin Features"),
+                  ),
               ],
             );
           },
