@@ -1,5 +1,9 @@
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/home/home_page.dart';
+import 'package:azeducation/features/home/student_home.dart';
+import 'package:azeducation/features/home/admin_home.dart';
+import 'package:azeducation/features/home/teacher_home.dart';
+import 'package:azeducation/providers/user_provider.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,15 +24,43 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     setState(() => _loading = true);
     try {
       final auth = ref.read(authServiceProvider);
-      await auth.signIn(
+      final res = await auth.signIn(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
+      final user = res.user;
+      if (mounted && user != null) {
+        final userService = ref.read(userServiceProvider);
+        final userProfile = await userService.getUserById(user.id);
+        if (!mounted) return;
+        if (userProfile == null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage()),
+          );
+          return;
+        }
+        if (userProfile.isStudent) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const StudentHome()),
+          );
+        } else if (userProfile.isAdmin) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminHome()),
+          );
+        } else if (userProfile.isTeacher) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const TeacherHome()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomePage()),
+          );
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(
