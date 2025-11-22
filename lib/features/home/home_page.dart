@@ -7,6 +7,7 @@ import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
 import 'package:azeducation/features/universities_tier/university_session.dart';
 import 'package:azeducation/features/universities_tier/videos/show.dart';
+import 'package:azeducation/models/user_model.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:azeducation/providers/user_provider.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,13 @@ class HomePage extends ConsumerWidget {
               return const Text("No user data found.");
             }
 
+            // ---- SAFE CASTING ----
+            Teacher? teacher;
+            Student? student;
+
+            if (user.isTeacher) teacher = user as Teacher;
+            if (user.isStudent) student = user as Student;
+
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -56,18 +64,41 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 5),
+
                 Text(
-                  "Role: ${user.isAdmin
-                      ? "Admin"
-                      : user.isTeacher
-                      ? "Teacher"
-                      : "Student"}",
+                  "Role: ${user.isAdmin ? "Admin" : user.isTeacher ? "Teacher" : "Student"}",
                   style: const TextStyle(
                     fontSize: 16,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
+
+                /// OPTIONAL: show teacher subjects
+                if (teacher != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    "Subjects: ${teacher.subjects.join(', ')}",
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+
+                /// OPTIONAL: show student courses
+                if (student != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    "Courses: ${student.courses.join(', ')}",
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  if (student.coreSubjectId != null)
+                    Text(
+                      "Core Subject: ${student.coreSubjectId}",
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                ],
+
                 const SizedBox(height: 12),
+
+                // ---------- ROUTE BUTTONS ----------
                 if (user.isAdmin || user.isTeacher)
                   ElevatedButton(
                     onPressed: () {
@@ -80,6 +111,7 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Admin University Session"),
                   ),
+
                 const SizedBox(height: 12),
 
                 if (user.isTeacher || user.isStudent)
@@ -88,43 +120,43 @@ class HomePage extends ConsumerWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              const UniversityCourseSubjectListPage(),
+                          builder: (_) => const UniversityCourseSubjectListPage(),
                         ),
                       );
                     },
                     child: const Text("Universities and Courses"),
                   ),
-                const SizedBox(height: 12),
-                if (user.isAdmin || user.isTeacher || user.isStudent)
-                  ElevatedButton(
-                    // icon: const Icon(Icons.add),
-                    child: const Text('View By Category'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const UniversitiesByCategoryPage(),
-                        ),
-                      );
-                    },
-                  ),
 
                 const SizedBox(height: 12),
 
-                if (user.isAdmin || user.isTeacher || user.isStudent)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const VideoStreamPage(),
-                        ),
-                      );
-                    },
-                    child: const Text("Recorded Classes"),
-                  ),
+                ElevatedButton(
+                  child: const Text('View By Category'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const UniversitiesByCategoryPage(),
+                      ),
+                    );
+                  },
+                ),
+
                 const SizedBox(height: 12),
+
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const VideoStreamPage(),
+                      ),
+                    );
+                  },
+                  child: const Text("Recorded Classes"),
+                ),
+
+                const SizedBox(height: 12),
+
                 if (user.isTeacher)
                   ElevatedButton(
                     onPressed: () {
@@ -137,7 +169,9 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Student Signup"),
                   ),
+
                 const SizedBox(height: 12),
+
                 if (user.isAdmin)
                   ElevatedButton(
                     onPressed: () {
@@ -150,7 +184,9 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Add Teacher"),
                   ),
+
                 const SizedBox(height: 12),
+
                 if (user.isAdmin)
                   ElevatedButton(
                     onPressed: () {
@@ -161,7 +197,9 @@ class HomePage extends ConsumerWidget {
                     },
                     child: const Text("Add Admin"),
                   ),
+
                 const SizedBox(height: 12),
+
                 if (user.isAdmin)
                   ElevatedButton(
                     onPressed: () {

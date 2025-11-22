@@ -8,7 +8,10 @@ class AuthService {
   Stream<AuthState> get authStateChanges => supabase.auth.onAuthStateChange;
 
   Future<AuthResponse> signIn(String email, String password) async {
-    return await supabase.auth.signInWithPassword(email: email, password: password);
+    return await supabase.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
   }
 
   Future<AuthResponse> signUp(String email, String password) async {
@@ -20,7 +23,7 @@ class AuthService {
   }
 
   /// Generic signup for any role
-  Future<void> signUpUser({
+  Future<User?> signUpUser({
     required String name,
     required String email,
     required String password,
@@ -45,5 +48,6 @@ class AuthService {
     };
 
     await supabase.from("users").insert(insertData);
+    return user;
   }
 }

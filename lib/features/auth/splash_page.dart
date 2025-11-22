@@ -87,7 +87,7 @@ Widget build(BuildContext context) {
           const CircularProgressIndicator(),
           const SizedBox(height: 50),
           Text(
-            "V 1.17",
+            "V 1.18",
             style: textTheme.bodyMedium?.copyWith(color: colorScheme.onBackground.withOpacity(0.7)),
           ),
           const SizedBox(height: 36),

@@ -97,6 +97,7 @@ class Teacher extends UserModel {
 /// Student model extending UserModel
 class Student extends UserModel {
   final List<String> courses;
+  final String? coreSubjectId;
 
   Student({
     required super.id,
@@ -105,25 +106,21 @@ class Student extends UserModel {
     required super.password,
     required super.mobile,
     this.courses = const [],
+    this.coreSubjectId,
     super.createdAt,
-  }) : super(
-          isStudent: true,
-        );
+  }) : super(isStudent: true);
 
   factory Student.fromMap(Map<String, dynamic> map) {
     return Student(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      email: map['email'] as String,
-      password: map['password'] as String,
-      mobile: map['mobile'] as String,
-      courses: (map['courses'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
-      createdAt: map['created_at'] != null
-          ? DateTime.parse(map['created_at'] as String)
-          : null,
+      id: map['id'],
+      name: map['name'],
+      email: map['email'],
+      password: map['password'],
+      mobile: map['mobile'],
+      courses: (map['courses'] as List<dynamic>?)?.cast<String>() ?? [],
+      coreSubjectId: map['core_subject_id'],
+      createdAt:
+          map['created_at'] != null ? DateTime.parse(map['created_at']) : null,
     );
   }
 
@@ -131,9 +128,11 @@ class Student extends UserModel {
   Map<String, dynamic> toMap() {
     final m = super.toMap();
     m['courses'] = courses;
+    m['core_subject_id'] = coreSubjectId;
     return m;
   }
 }
+
 
 /// Admin model extending UserModel
 class Admin extends UserModel {

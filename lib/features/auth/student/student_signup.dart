@@ -1,4 +1,5 @@
 import 'package:azeducation/features/universities_tier/add/add_university.dart';
+import 'package:azeducation/features/universities_tier/university_services.dart';
 import 'package:azeducation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,41 +33,49 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedCourseId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please select a course")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select a course")),
+      );
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      await ref
-          .read(authServiceProvider)
-          .signUpUser(
-            name: _nameController.text.trim(),
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-            mobile: _mobileController.text.trim(),
-            role: "student",
-            extraData: {
-              "is_student": true,
-              "courses": [_selectedCourseId],
-            },
-          );
+      // 1. Sign up user (returns created user)
+      final auth = ref.read(authServiceProvider);
+      final user = await auth.signUpUser(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        mobile: _mobileController.text.trim(),
+        role: "student",
+        extraData: {
+          "is_student": true,
+        },
+      );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Student signup successful!")),
-        );
-        Navigator.pop(context);
-      }
+      final userId = user?.id;
+
+      // 2. Insert into the relational table student_courses
+      await supabase.from('student_courses').insert({
+        'student_id': userId,
+        'course_id': _selectedCourseId,
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Student signup successful!")),
+      );
+
+      Navigator.pop(context);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Signup failed: $e")));
-      }
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Signup failed: $e")),
+      );
     } finally {
       setState(() => _loading = false);
     }
@@ -77,6 +86,7 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final provider = ref.watch(dataProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text("Student Signup")),
       body: provider.isLoading
@@ -120,104 +130,108 @@ class _StudentSignupPageState extends ConsumerState<StudentSignupPage> {
                                 Text(
                                   "Sign up to access courses and resources",
                                   style: textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.onBackground.withOpacity(
-                                      0.7,
-                                    ),
+                                    color: colorScheme.onBackground
+                                        .withOpacity(0.7),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 28),
-                                ...[
-                                  TextFormField(
-                                    controller: _nameController,
-                                    decoration: const InputDecoration(
-                                      labelText: "Full Name",
-                                      prefixIcon: Icon(Icons.person_outline),
-                                    ),
-                                    validator: (v) => v == null || v.isEmpty
-                                        ? "Enter your name"
-                                        : null,
+
+                                // INPUT FIELDS
+                                TextFormField(
+                                  controller: _nameController,
+                                  decoration: const InputDecoration(
+                                    labelText: "Full Name",
+                                    prefixIcon: Icon(Icons.person_outline),
                                   ),
-                                  const SizedBox(height: 18),
-                                  TextFormField(
-                                    controller: _emailController,
-                                    keyboardType: TextInputType.emailAddress,
-                                    decoration: const InputDecoration(
-                                      labelText: "Email",
-                                      prefixIcon: Icon(Icons.email_outlined),
-                                    ),
-                                    validator: (v) => v == null || v.isEmpty
-                                        ? "Enter your email"
-                                        : null,
+                                  validator: (v) => v == null || v.isEmpty
+                                      ? "Enter your name"
+                                      : null,
+                                ),
+                                const SizedBox(height: 18),
+
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: const InputDecoration(
+                                    labelText: "Email",
+                                    prefixIcon: Icon(Icons.email_outlined),
                                   ),
-                                  const SizedBox(height: 18),
-                                  TextFormField(
-                                    controller: _passwordController,
-                                    obscureText: true,
-                                    decoration: const InputDecoration(
-                                      labelText: "Password",
-                                      prefixIcon: Icon(Icons.lock_outline),
-                                    ),
-                                    validator: (v) => v == null || v.isEmpty
-                                        ? "Enter your password"
-                                        : null,
+                                  validator: (v) => v == null || v.isEmpty
+                                      ? "Enter your email"
+                                      : null,
+                                ),
+                                const SizedBox(height: 18),
+
+                                TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: true,
+                                  decoration: const InputDecoration(
+                                    labelText: "Password",
+                                    prefixIcon: Icon(Icons.lock_outline),
                                   ),
-                                  const SizedBox(height: 18),
-                                  TextFormField(
-                                    controller: _mobileController,
-                                    keyboardType: TextInputType.phone,
-                                    decoration: const InputDecoration(
-                                      labelText: "Mobile Number",
-                                      prefixIcon: Icon(Icons.phone_outlined),
-                                    ),
-                                    validator: (v) => v == null || v.isEmpty
-                                        ? "Enter your mobile number"
-                                        : null,
+                                  validator: (v) => v == null || v.isEmpty
+                                      ? "Enter your password"
+                                      : null,
+                                ),
+                                const SizedBox(height: 18),
+
+                                TextFormField(
+                                  controller: _mobileController,
+                                  keyboardType: TextInputType.phone,
+                                  decoration: const InputDecoration(
+                                    labelText: "Mobile Number",
+                                    prefixIcon: Icon(Icons.phone_outlined),
                                   ),
-                                  const SizedBox(height: 18),
-                                  DropdownButtonFormField<String>(
-                                    value: _selectedCourseId,
-                                    isExpanded: true,
-                                    items: provider.courses
-                                        .map(
-                                          (c) => DropdownMenuItem(
-                                            value: c.courseId,
-                                            child: Text(
-                                              c.courseName,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
+                                  validator: (v) => v == null || v.isEmpty
+                                      ? "Enter your mobile number"
+                                      : null,
+                                ),
+                                const SizedBox(height: 18),
+
+                                DropdownButtonFormField<String>(
+                                  value: _selectedCourseId,
+                                  isExpanded: true,
+                                  items: provider.courses
+                                      .map(
+                                        (c) => DropdownMenuItem(
+                                          value: c.courseId,
+                                          child: Text(
+                                            c.courseName,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: _loading
+                                      ? null
+                                      : (v) =>
+                                          setState(() => _selectedCourseId = v),
+                                  decoration: const InputDecoration(
+                                    labelText: "Select Course",
+                                    prefixIcon: Icon(Icons.school_outlined),
+                                  ),
+                                  validator: (v) =>
+                                      v == null ? "Select a course" : null,
+                                ),
+
+                                const SizedBox(height: 28),
+
+                                ElevatedButton(
+                                  onPressed: _loading ? null : _signupStudent,
+                                  style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size.fromHeight(48),
+                                  ),
+                                  child: _loading
+                                      ? const SizedBox(
+                                          height: 22,
+                                          width: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
                                           ),
                                         )
-                                        .toList(),
-                                    onChanged: _loading
-                                        ? null
-                                        : (v) => setState(
-                                            () => _selectedCourseId = v,
-                                          ),
-                                    decoration: const InputDecoration(
-                                      labelText: "Select Course",
-                                      prefixIcon: Icon(Icons.school_outlined),
-                                    ),
-                                    validator: (v) =>
-                                        v == null ? "Select a course" : null,
-                                  ),
-                                  const SizedBox(height: 28),
-                                  ElevatedButton(
-                                    onPressed: _loading ? null : _signupStudent,
-                                    style: ElevatedButton.styleFrom(
-                                      minimumSize: const Size.fromHeight(48),
-                                    ),
-                                    child: _loading
-                                        ? const SizedBox(
-                                            height: 22,
-                                            width: 22,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Text("Sign Up"),
-                                  ),
-                                ],
+                                      : const Text("Sign Up"),
+                                ),
                               ],
                             ),
                           ),
