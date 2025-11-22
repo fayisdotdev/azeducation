@@ -5,6 +5,7 @@ import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
 import 'package:azeducation/features/universities_tier/admin/admin_featured_universities.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
+import 'package:azeducation/features/universities_tier/university_model.dart';
 import 'package:azeducation/features/universities_tier/university_session.dart';
 import 'package:azeducation/features/universities_tier/videos/show.dart';
 import 'package:azeducation/models/user_model.dart';
@@ -20,6 +21,7 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.read(authServiceProvider);
     final userProfileAsync = ref.watch(currentUserProfileProvider);
+    final data = ref.watch(dataProvider); // watch DataProvider
 
     return Scaffold(
       appBar: AppBar(
@@ -42,176 +44,248 @@ class HomePage extends ConsumerWidget {
       body: Center(
         child: userProfileAsync.when(
           data: (user) {
-            if (user == null) {
-              return const Text("No user data found.");
-            }
+            if (user == null) return const Text("No user data found.");
 
-            // ---- SAFE CASTING ----
-            Teacher? teacher;
-            Student? student;
+            Student? student = user.isStudent ? user as Student : null;
+            Teacher? teacher = user.isTeacher ? user as Teacher : null;
 
-            if (user.isTeacher) teacher = user as Teacher;
-            if (user.isStudent) student = user as Student;
+            return data.isLoading
+                ? const CircularProgressIndicator()
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Logged in as: ${user.email}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Role: ${user.isAdmin ? "Admin" : user.isTeacher ? "Teacher" : "Student"}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Logged in as: ${user.email}",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 5),
+                        // ---- STUDENT DETAILS ----
+                        if (student != null) ...[
+                          Text(
+                            "Enrolled Courses:",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          ...student.courses.map((courseId) {
+                            final course = data.courses.firstWhere(
+                              (c) => c.courseId == courseId,
+                              orElse: () => Course(
+                                  courseId: "",
+                                  universityId: "",
+                                  courseName: "Unknown",
+                                  createdAt: DateTime.now()),
+                            );
 
-                Text(
-                  "Role: ${user.isAdmin ? "Admin" : user.isTeacher ? "Teacher" : "Student"}",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Course: ${course.courseName}",
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    if (course.university != null)
+                                      Text(
+                                          "University: ${course.university!.universityName}"),
+                                    if (course.category != null)
+                                      Text(
+                                          "Category: ${course.category!.categoryName}"),
+                                    const SizedBox(height: 4),
+                                    if (course.subjects.isNotEmpty)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            "Subjects:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          ...course.subjects.map(
+                                            (s) => Text("• ${s.subjectName}"),
+                                          ),
+                                        ],
+                                      ),
+                                    if (course.courseDetails.isNotEmpty)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          const Text(
+                                            "Details:",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          ...course.courseDetails.map(
+                                            (d) => Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                if (d.description != null)
+                                                  Text("Description: ${d.description}"),
+                                                if (d.duration != null)
+                                                  Text("Duration: ${d.duration}"),
+                                                if (d.fees != null)
+                                                  Text("Fees: ${d.fees}"),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
 
-                /// OPTIONAL: show teacher subjects
-                if (teacher != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    "Subjects: ${teacher.subjects.join(', ')}",
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ],
+                        const SizedBox(height: 12),
 
-                /// OPTIONAL: show student courses
-                if (student != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    "Courses: ${student.courses.join(', ')}",
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                  if (student.coreSubjectId != null)
-                    Text(
-                      "Core Subject: ${student.coreSubjectId}",
-                      style: const TextStyle(fontSize: 14),
+                        // ---- TEACHER DETAILS ----
+                        if (teacher != null) ...[
+                          const Text(
+                            "Subjects Assigned:",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(teacher.subjects.join(', ')),
+                        ],
+
+                        const SizedBox(height: 16),
+
+                        // ---------- ROUTE BUTTONS ----------
+                        if (user.isAdmin || user.isTeacher)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const UniversitySession(),
+                                ),
+                              );
+                            },
+                            child: const Text("Admin University Session"),
+                          ),
+                        const SizedBox(height: 12),
+                        if (user.isTeacher || user.isStudent)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const UniversityCourseSubjectListPage(),
+                                ),
+                              );
+                            },
+                            child: const Text("Universities and Courses"),
+                          ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          child: const Text('View By Category'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const UniversitiesByCategoryPage(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const VideoStreamPage(),
+                              ),
+                            );
+                          },
+                          child: const Text("Recorded Classes"),
+                        ),
+                        const SizedBox(height: 12),
+                        if (user.isTeacher)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const StudentSignupPage(),
+                                ),
+                              );
+                            },
+                            child: const Text("Student Signup"),
+                          ),
+                        const SizedBox(height: 12),
+                        if (user.isAdmin)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const AddTeacherPage()),
+                              );
+                            },
+                            child: const Text("Add Teacher"),
+                          ),
+                        const SizedBox(height: 12),
+                        if (user.isAdmin)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const AddAdminPage()),
+                              );
+                            },
+                            child: const Text("Add Admin"),
+                          ),
+                        const SizedBox(height: 12),
+                        if (user.isAdmin)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const AdminFeaturedUniversitiesPage()),
+                              );
+                            },
+                            child: const Text("Admin Features"),
+                          ),
+                      ],
                     ),
-                ],
-
-                const SizedBox(height: 12),
-
-                // ---------- ROUTE BUTTONS ----------
-                if (user.isAdmin || user.isTeacher)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const UniversitySession(),
-                        ),
-                      );
-                    },
-                    child: const Text("Admin University Session"),
-                  ),
-
-                const SizedBox(height: 12),
-
-                if (user.isTeacher || user.isStudent)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const UniversityCourseSubjectListPage(),
-                        ),
-                      );
-                    },
-                    child: const Text("Universities and Courses"),
-                  ),
-
-                const SizedBox(height: 12),
-
-                ElevatedButton(
-                  child: const Text('View By Category'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const UniversitiesByCategoryPage(),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 12),
-
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const VideoStreamPage(),
-                      ),
-                    );
-                  },
-                  child: const Text("Recorded Classes"),
-                ),
-
-                const SizedBox(height: 12),
-
-                if (user.isTeacher)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const StudentSignupPage(),
-                        ),
-                      );
-                    },
-                    child: const Text("Student Signup"),
-                  ),
-
-                const SizedBox(height: 12),
-
-                if (user.isAdmin)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AddTeacherPage(),
-                        ),
-                      );
-                    },
-                    child: const Text("Add Teacher"),
-                  ),
-
-                const SizedBox(height: 12),
-
-                if (user.isAdmin)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AddAdminPage()),
-                      );
-                    },
-                    child: const Text("Add Admin"),
-                  ),
-
-                const SizedBox(height: 12),
-
-                if (user.isAdmin)
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AdminFeaturedUniversitiesPage()),
-                      );
-                    },
-                    child: const Text("Admin Features"),
-                  ),
-              ],
-            );
+                  );
           },
           loading: () => const CircularProgressIndicator(),
           error: (err, _) => Text("Error loading user: $err"),
