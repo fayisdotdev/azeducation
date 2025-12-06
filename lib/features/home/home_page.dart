@@ -2,6 +2,7 @@ import 'package:azeducation/features/auth/admin/add_admin.dart';
 import 'package:azeducation/features/auth/login_page.dart';
 import 'package:azeducation/features/auth/student/student_signup.dart';
 import 'package:azeducation/features/auth/teacher/teacher_signup.dart';
+import 'package:azeducation/features/home/students_homepage.dart';
 import 'package:azeducation/features/universities_tier/admin/admin_featured_universities.dart';
 import 'package:azeducation/features/universities_tier/show/show_mixed.dart';
 import 'package:azeducation/features/universities_tier/show/university_by_category.dart';
@@ -21,7 +22,7 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.read(authServiceProvider);
     final userProfileAsync = ref.watch(currentUserProfileProvider);
-    final data = ref.watch(dataProvider); // watch DataProvider
+    final data = ref.watch(dataProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -75,97 +76,75 @@ class HomePage extends ConsumerWidget {
 
                         // ---- STUDENT DETAILS ----
                         if (student != null) ...[
-                          Text(
-                            "Enrolled Courses:",
-                            style: const TextStyle(
+                          const Text(
+                            "Student Information",
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          ...student.courses.map((courseId) {
-                            final course = data.courses.firstWhere(
-                              (c) => c.courseId == courseId,
-                              orElse: () => Course(
-                                  courseId: "",
-                                  universityId: "",
-                                  courseName: "Unknown",
-                                  createdAt: DateTime.now()),
-                            );
+                          const SizedBox(height: 8),
 
-                            return Card(
-                              margin: const EdgeInsets.symmetric(vertical: 6),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
+                          // Fetch student's courses dynamically
+                          FutureBuilder<List<Course>>(
+                            future: data.fetchStudentCourses(student.id),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              }
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
+                                  children: const [
+                                    Text("University: Not Assigned", style: TextStyle(fontSize: 15)),
+                                    Text("Course: Not Assigned", style: TextStyle(fontSize: 15)),
+                                    SizedBox(height: 4),
                                     Text(
-                                      "Course: ${course.courseName}",
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      "Enrolled Subjects: No subjects enrolled",
+                                      style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
                                     ),
-                                    if (course.university != null)
-                                      Text(
-                                          "University: ${course.university!.universityName}"),
-                                    if (course.category != null)
-                                      Text(
-                                          "Category: ${course.category!.categoryName}"),
-                                    const SizedBox(height: 4),
-                                    if (course.subjects.isNotEmpty)
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            "Subjects:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          ...course.subjects.map(
-                                            (s) => Text("• ${s.subjectName}"),
-                                          ),
-                                        ],
-                                      ),
-                                    if (course.courseDetails.isNotEmpty)
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(height: 4),
-                                          const Text(
-                                            "Details:",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          ...course.courseDetails.map(
-                                            (d) => Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                if (d.description != null)
-                                                  Text("Description: ${d.description}"),
-                                                if (d.duration != null)
-                                                  Text("Duration: ${d.duration}"),
-                                                if (d.fees != null)
-                                                  Text("Fees: ${d.fees}"),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
                                   ],
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
+                                );
+                              }
 
-                        const SizedBox(height: 12),
+                              final studentCourses = snapshot.data!;
+                              final course = studentCourses.first; // assuming one active course
+                              final universityName = course.university?.universityName ?? "Not Assigned";
+                              final courseName = course.courseName;
+                              final enrolledSubjects = course.subjects.map((s) => s.subjectName).toList();
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("University: $universityName", style: const TextStyle(fontSize: 15)),
+                                  Text("Course: $courseName", style: const TextStyle(fontSize: 15)),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    "Enrolled Subjects:",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  if (enrolledSubjects.isNotEmpty)
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: enrolledSubjects
+                                          .map((s) => Text("• $s", style: const TextStyle(fontSize: 14)))
+                                          .toList(),
+                                    )
+                                  else
+                                    const Text(
+                                      "No subjects enrolled",
+                                      style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                        ],
 
                         // ---- TEACHER DETAILS ----
                         if (teacher != null) ...[
@@ -188,9 +167,7 @@ class HomePage extends ConsumerWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => const UniversitySession(),
-                                ),
+                                MaterialPageRoute(builder: (_) => const UniversitySession()),
                               );
                             },
                             child: const Text("Admin University Session"),
@@ -202,12 +179,22 @@ class HomePage extends ConsumerWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      const UniversityCourseSubjectListPage(),
-                                ),
+                                    builder: (_) => const UniversityCourseSubjectListPage()),
                               );
                             },
                             child: const Text("Universities and Courses"),
+                          ),
+
+                           if (user.isStudent)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const StudentHomePage()),
+                              );
+                            },
+                            child: const Text("Students Homepage"),
                           ),
                         const SizedBox(height: 12),
                         ElevatedButton(
@@ -215,9 +202,7 @@ class HomePage extends ConsumerWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => const UniversitiesByCategoryPage(),
-                              ),
+                              MaterialPageRoute(builder: (_) => const UniversitiesByCategoryPage()),
                             );
                           },
                         ),
@@ -226,9 +211,7 @@ class HomePage extends ConsumerWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => const VideoStreamPage(),
-                              ),
+                              MaterialPageRoute(builder: (_) => const VideoStreamPage()),
                             );
                           },
                           child: const Text("Recorded Classes"),
@@ -239,9 +222,7 @@ class HomePage extends ConsumerWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) => const StudentSignupPage(),
-                                ),
+                                MaterialPageRoute(builder: (_) => const StudentSignupPage()),
                               );
                             },
                             child: const Text("Student Signup"),
@@ -252,8 +233,7 @@ class HomePage extends ConsumerWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (_) => const AddTeacherPage()),
+                                MaterialPageRoute(builder: (_) => const AddTeacherPage()),
                               );
                             },
                             child: const Text("Add Teacher"),
@@ -264,8 +244,7 @@ class HomePage extends ConsumerWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (_) => const AddAdminPage()),
+                                MaterialPageRoute(builder: (_) => const AddAdminPage()),
                               );
                             },
                             child: const Text("Add Admin"),
@@ -276,9 +255,7 @@ class HomePage extends ConsumerWidget {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        const AdminFeaturedUniversitiesPage()),
+                                MaterialPageRoute(builder: (_) => const AdminFeaturedUniversitiesPage()),
                               );
                             },
                             child: const Text("Admin Features"),

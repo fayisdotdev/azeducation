@@ -2,6 +2,7 @@ import 'package:azeducation/features/universities_tier/university_model.dart';
 import 'package:azeducation/features/universities_tier/university_services.dart';
 import 'package:flutter/foundation.dart';
 
+
 class DataProvider extends ChangeNotifier {
   final DatabaseService _service = DatabaseService();
 
@@ -180,4 +181,10 @@ class DataProvider extends ChangeNotifier {
     await _service.deleteCourseDetail(id);
     await fetchAll(forceRefresh: true);
   }
+
+  // ===== STUDENT COURSES =====
+Future<List<Course>> fetchStudentCourses(String studentId) async {
+  return await _service.getStudentCourses(studentId);
+}
+
 }

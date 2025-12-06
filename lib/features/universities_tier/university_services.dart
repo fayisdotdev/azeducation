@@ -133,4 +133,24 @@ class DatabaseService {
   Future<void> deleteCourseDetail(String id) async {
     await supabase.from('course_details').delete().eq('detail_id', id);
   }
+
+  // ===== STUDENT COURSES =====
+Future<List<Course>> getStudentCourses(String studentId) async {
+  // 1. Fetch course IDs from student_courses table
+  final res = await supabase
+      .from('student_courses')
+      .select('course_id')
+      .eq('student_id', studentId);
+
+  final courseIds = res.map((e) => e['course_id'] as String).toList();
+
+  if (courseIds.isEmpty) return [];
+
+  // 2. Fetch full course data with relations
+  final allCourses = await getCourses(attachRelations: true);
+
+  // 3. Return only the courses that the student is enrolled in
+  return allCourses.where((c) => courseIds.contains(c.courseId)).toList();
+}
+
 }
